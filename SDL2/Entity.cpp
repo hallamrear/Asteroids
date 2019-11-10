@@ -6,7 +6,7 @@ Entity::Entity(SDL_Renderer& renderer, std::string texture_path, Vector2f positi
 {
 	mPosition = position;
 	mRotation = rotation;
-	mWeight = weight;
+	mMass = weight;
 	mDragCoefficient = dragCoeff;
 	mSpeedCap = speedCap;
 
@@ -43,37 +43,39 @@ void Entity::AddForce(Vector2f force)
 
 void Entity::UpdatePhysics(double deltaTime)
 {
-	///Drag
-	Vector2f dragForce;
-	dragForce.X = -mDragCoefficient * mVelocity.X;
-	dragForce.Y = -mDragCoefficient * mVelocity.Y;
+	if (mPhysicsEnabled)
+	{
+		///Drag
+		Vector2f dragForce;
+		dragForce.X = -mDragCoefficient * mVelocity.X;
+		dragForce.Y = -mDragCoefficient * mVelocity.Y;
+		mNetForce += dragForce;
 
-	///NetForce
-	//No need for gravity
-	//mNetForce += (9.81f * mWeight);
-	mNetForce += mExternalForce;
-	mNetForce += dragForce;
+		///External
+		//No need for gravity
+		//mNetForce += (9.81f * mWeight);
+		mNetForce += mExternalForce;
 
-	///Acceleration
-	if (mNetForce != Vector2f(0.0f, 0.0f))
-		mAcceleration = Vector2f(mNetForce.X / mWeight, mNetForce.Y / mWeight);
+		///Acceleration
+		mAcceleration = Vector2f(mNetForce.X / mMass, mNetForce.Y / mMass);
 
-	///Update Position
-	mVelocity += mAcceleration;
-	mPosition += mVelocity * (float)deltaTime;
+		///Update Position
+		mVelocity += mAcceleration * (float)deltaTime;
+		mPosition += mVelocity;
 
-	///Speed Cap
-	//Capping at 15u/s - X
-	if (mVelocity.X > mSpeedCap)
-		mVelocity.X = mSpeedCap;
-	else if (mVelocity.X < -mSpeedCap)
-		mVelocity.X = -mSpeedCap;
-	//Capping at 15u/s - Y
-	if (mVelocity.Y > mSpeedCap)
-		mVelocity.Y = mSpeedCap;
-	else if (mVelocity.Y < -mSpeedCap)
-		mVelocity.Y = -mSpeedCap;
+		///Speed Cap
+		//Capping at 15u/s - X
+		if (mVelocity.X > mSpeedCap)
+			mVelocity.X = mSpeedCap;
+		else if (mVelocity.X < -mSpeedCap)
+			mVelocity.X = -mSpeedCap;
+		//Capping at 15u/s - Y
+		if (mVelocity.Y > mSpeedCap)
+			mVelocity.Y = mSpeedCap;
+		else if (mVelocity.Y < -mSpeedCap)
+			mVelocity.Y = -mSpeedCap;
 
-	mNetForce = Vector2f();
-	mExternalForce = Vector2f();
+		mNetForce = Vector2f();
+		mExternalForce = Vector2f();
+	}
 }

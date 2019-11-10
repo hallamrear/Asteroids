@@ -10,6 +10,6 @@ public:
 	virtual ~Ship();
 
 	void Update(double deltaTime);
-	void Draw(SDL_Renderer& renderer);
+	void Draw();
 };
 

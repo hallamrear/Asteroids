@@ -33,6 +33,11 @@ public:
 
 	//Operators
 
+	Vector2f operator+(const Vector2f& rhs)
+	{
+		return Vector2f(this->X + rhs.X, this->Y + rhs.Y);
+	}
+
 	Vector2f operator*(const float& scalar)
 	{
 		return Vector2f(this->X * scalar, this->Y * scalar);

@@ -19,11 +19,13 @@ void Application::Initialise(int argc, char* argv[])
 	{
 		std::cout << "Subsystem created." << std::endl;
 
-		if (InitialiseWindow("Test Window", 128, 128, 1280, 720, SDL_WINDOW_SHOWN, false) == false)
+		if (InitialiseWindow("Test Window", 128, 128, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, false) == false)
 		{
 			mIsInitialised = false;
 			return;
 		}
+
+		SDL_GetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
 
 		if (InitialiseGraphics() == false)
 		{
@@ -43,8 +45,10 @@ void Application::Initialise(int argc, char* argv[])
 			mIsInitialised = false;
 			return;
 		}
-	
-		mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), Vector2f(300.0f, 300.0f), 0.0f, 50.0f, 0.47f, 500.0f);
+
+		mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), Vector2f(300.0f, 300.0f), 0.0f, 25.0f, 0.47f, 10.0f);
+		mShip->SetPhysicsEnabled(true);
+
 
 		mIsInitialised = true;
 	}
@@ -135,30 +139,67 @@ void Application::HandleEvents(double deltaTime)
 			mIsRunning = false;
 			break;
 
+		case SDL_WINDOWEVENT_RESIZED:
+			SDL_GetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
+			break;
+
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
+			case SDLK_UP:
+			case SDLK_w:
+				mKeyStates.Key_Up = true;
+				break;
+
+			case SDLK_DOWN:
+			case SDLK_s:
+				mKeyStates.Key_Down = true;
+				break;
+
+			case SDLK_LEFT:
+			case SDLK_a:
+				mKeyStates.Key_Left = true;
+				break;
+
+			case SDLK_RIGHT:
+			case SDLK_d:
+				mKeyStates.Key_Right = true;
+				break;
+
 			case SDLK_ESCAPE:
 				mIsRunning = false;
 				break;
+			}
+			break;
+
+
+
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym)
+			{
 			case SDLK_UP:
 			case SDLK_w:
-				mShip->AddForce(Vector2f(0.0f, -500.0f));
+				mKeyStates.Key_Up = false;
 				break;
+
 			case SDLK_DOWN:
 			case SDLK_s:
-				mShip->AddForce(Vector2f(0.0f, 500.0f));
+				mKeyStates.Key_Down = false;
 				break;
+
 			case SDLK_LEFT:
 			case SDLK_a:
-				mShip->AddForce(Vector2f(-500.0f, 0.0f));
+				mKeyStates.Key_Left = false;
 				break;
-			case SDLK_d:
+
 			case SDLK_RIGHT:
-				mShip->AddForce(Vector2f(500.0f, 0.0f));
+			case SDLK_d:
+				mKeyStates.Key_Right = false;
 				break;
 			}
 			break;
+
+
 		}
 	}
 }
@@ -167,33 +208,45 @@ void Application::Update(double deltaTime)
 {
 	std::cout << "DT: " << std::to_string(deltaTime) << std::endl;
 
+	if(mKeyStates.Key_Up)
+		mShip->AddForce(Vector2f(0.0f, -750.0f));
+
+	if (mKeyStates.Key_Down)
+		mShip->AddForce(Vector2f(0.0f, 750.0f));
+
+	if (mKeyStates.Key_Left)
+		mShip->AddForce(Vector2f(-750.0f, 0.0f));
+
+	if (mKeyStates.Key_Right)
+		mShip->AddForce(Vector2f(750.0f, 0.0f));
+
 	mShip->Update(deltaTime);
 
 	///
 	//Wraparound
-	if (mShip->GetPosition().X > 1280.0f)
+	if (mShip->GetPosition().X > mWindowWidth)
 	{
 		Vector2f pos = mShip->GetPosition();
-		pos.X -= 1280.0f;
+		pos.X -= mWindowWidth;
 		mShip->SetPosition(pos);
 	}
 	else if (mShip->GetPosition().X < 0.0f)
 	{
 		Vector2f pos = mShip->GetPosition();
-		pos.X += 1280.0f;
+		pos.X += mWindowWidth;
 		mShip->SetPosition(pos);
 	}
 
-	if (mShip->GetPosition().Y > 720.0f)
+	if (mShip->GetPosition().Y > mWindowHeight)
 	{
 		Vector2f pos = mShip->GetPosition();
-		pos.Y -= 720.0f;
+		pos.Y -= mWindowHeight;
 		mShip->SetPosition(pos);
 	}
 	else if (mShip->GetPosition().Y < 0.0f)
 	{
 		Vector2f pos = mShip->GetPosition();
-		pos.Y += 720.0f;
+		pos.Y += mWindowHeight;
 		mShip->SetPosition(pos);
 	}
 	///
@@ -204,15 +257,15 @@ void Application::Draw()
 	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mRenderer);
 
-	SDL_SetRenderDrawColor(mRenderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderDrawPoint(mRenderer, 500, 500);
+	SDL_Rect outline;
+	outline.x = 1;
+	outline.y = 1;
+	outline.w = mWindowWidth - 1;
+	outline.h = mWindowHeight - 1;
+	SDL_SetRenderDrawColor(mRenderer, 255, 0, 0, 255);
+	SDL_RenderDrawRect(mRenderer, &outline);
 
-	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderDrawLine(mRenderer, 320, 200, 300, 240);
-	SDL_RenderDrawLine(mRenderer, 300, 240, 340, 240);
-	SDL_RenderDrawLine(mRenderer, 340, 240, 320, 200);
-
-	mShip->Draw(*mRenderer);
+	mShip->Draw();
 
 	SDL_RenderPresent(mRenderer);
 }

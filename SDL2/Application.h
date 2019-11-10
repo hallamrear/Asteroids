@@ -1,12 +1,25 @@
 #pragma once
 
+struct KeyPresses
+{
+	bool Key_Up = false;
+	bool Key_Down = false;
+	bool Key_Left = false;
+	bool Key_Right = false;
+};
+
 class Application
 {
 private:
+	int mWindowWidth;
+	int mWindowHeight;
+
 	struct SDL_Window*			mWindow;
 	struct SDL_Renderer*		mRenderer;
 	struct SDL_Texture*			mTexture;
 	class  Ship*				mShip;
+
+	KeyPresses mKeyStates;
 
 	bool mIsInitialised;
 	bool mIsRunning;
