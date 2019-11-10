@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "Application.h"
+#include "Ship.h"
 
 Application::Application()
 { 
@@ -43,18 +44,7 @@ void Application::Initialise(int argc, char* argv[])
 			return;
 		}
 	
-		// Load image as SDL_Surface
-		SDL_Surface* surface = IMG_Load("Assets/ship.bmp");
-		// SDL_Surface is just the raw pixels
-		// Convert it to a hardware-optimzed texture so we can render it
-		mTexture = SDL_CreateTextureFromSurface(mRenderer, surface);
-		// Don't need the orignal texture, release the memory
-		SDL_FreeSurface(surface);
-
-		if (mTexture == nullptr)
-			std::cout << "Failed to load texture " << "'Assets/ship.bmp'" << " error : " << SDL_GetError() << std::endl;
-
-
+		mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), Vector2f(300.0f, 300.0f), 0.0f, 50.0f, 0.47f, 500.0f);
 
 		mIsInitialised = true;
 	}
@@ -127,6 +117,10 @@ void Application::Cleanup()
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 	IMG_Quit();
+
+	delete mShip;
+	mShip = nullptr;
+
 	mIsInitialised = false;
 }
 
@@ -149,19 +143,19 @@ void Application::HandleEvents(double deltaTime)
 				break;
 			case SDLK_UP:
 			case SDLK_w:
-				mShipVelocity.y -= 2.0f;
+				mShip->AddForce(Vector2f(0.0f, -500.0f));
 				break;
 			case SDLK_DOWN:
 			case SDLK_s:
-				mShipVelocity.y += 2.0f;
+				mShip->AddForce(Vector2f(0.0f, 500.0f));
 				break;
 			case SDLK_LEFT:
 			case SDLK_a:
-				mShipVelocity.x -= 2.0f;
+				mShip->AddForce(Vector2f(-500.0f, 0.0f));
 				break;
 			case SDLK_d:
 			case SDLK_RIGHT:
-				mShipVelocity.x += 2.0f;
+				mShip->AddForce(Vector2f(500.0f, 0.0f));
 				break;
 			}
 			break;
@@ -173,52 +167,36 @@ void Application::Update(double deltaTime)
 {
 	std::cout << "DT: " << std::to_string(deltaTime) << std::endl;
 
-	pos.x += mShipVelocity.x;
-	pos.y += mShipVelocity.y;
-
-	//Capping at 15u/s - X
-	if (mShipVelocity.x > 30.0f)
-		mShipVelocity.x = 30.0f;
-	else if (mShipVelocity.x < -30.0f)
-		mShipVelocity.x = -30.0f;
-
-	//Friction of 0.1u/s
-	if (mShipVelocity.x > 0.1f)
-		mShipVelocity.x -= 0.1f;
-	else if(mShipVelocity.x < -0.1f)
-		mShipVelocity.x += 0.1f;
-	else
-		mShipVelocity.x = 0.0f;
-
-
-	//Capping at 15u/s - Y
-	if (mShipVelocity.y > 30.0f)
-		mShipVelocity.y = 30.0f;
-	else if (mShipVelocity.y < -30.0f)
-		mShipVelocity.y = -30.0f;
-
-	//Friction of 0.1u/s
-	if (mShipVelocity.y > 0.1f)
-		mShipVelocity.y -= 0.1f;
-	else if (mShipVelocity.y < -0.1f)
-		mShipVelocity.y += 0.1f;
-	else
-		mShipVelocity.y = 0.0f;
+	mShip->Update(deltaTime);
 
 	///
 	//Wraparound
-	if (pos.x > 1280.0f)
-		pos.x -= 1280.0f;
-	else if (pos.x < 0.0f)
-		pos.x += 1280.0f;
+	if (mShip->GetPosition().X > 1280.0f)
+	{
+		Vector2f pos = mShip->GetPosition();
+		pos.X -= 1280.0f;
+		mShip->SetPosition(pos);
+	}
+	else if (mShip->GetPosition().X < 0.0f)
+	{
+		Vector2f pos = mShip->GetPosition();
+		pos.X += 1280.0f;
+		mShip->SetPosition(pos);
+	}
 
-	if (pos.y > 720)
-		pos.y -= 720;
-	else if (pos.y < 0.0f)
-		pos.y += 720;
+	if (mShip->GetPosition().Y > 720.0f)
+	{
+		Vector2f pos = mShip->GetPosition();
+		pos.Y -= 720.0f;
+		mShip->SetPosition(pos);
+	}
+	else if (mShip->GetPosition().Y < 0.0f)
+	{
+		Vector2f pos = mShip->GetPosition();
+		pos.Y += 720.0f;
+		mShip->SetPosition(pos);
+	}
 	///
-
-	std::cout << "VelX: " << mShipVelocity.x << ", VelY: " << mShipVelocity.y << std::endl;
 }
 
 void Application::Draw()
@@ -234,12 +212,7 @@ void Application::Draw()
 	SDL_RenderDrawLine(mRenderer, 300, 240, 340, 240);
 	SDL_RenderDrawLine(mRenderer, 340, 240, 320, 200);
 
-	SDL_Rect destRect;
-	destRect.w = 64;
-	destRect.h = 64;
-	destRect.x = pos.x - (destRect.w / 2);
-	destRect.y = pos.y - (destRect.h / 2);
-	SDL_RenderCopyEx(mRenderer, mTexture, NULL, &destRect, 45.0, NULL, SDL_FLIP_NONE);
+	mShip->Draw(*mRenderer);
 
 	SDL_RenderPresent(mRenderer);
 }

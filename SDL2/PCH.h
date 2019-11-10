@@ -7,3 +7,6 @@
 //C++ Libaries
 #include <iostream>
 #include <string>
+
+//My Variables
+#include "Vector2.h"
