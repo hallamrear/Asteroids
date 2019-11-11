@@ -48,6 +48,7 @@ void Application::Initialise(int argc, char* argv[])
 
 		mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), Vector2f(300.0f, 300.0f), 0.0f, 25.0f, 0.47f, 10.0f);
 		mShip->SetPhysicsEnabled(true);
+		mShip->SetDragEnabled(true);
 
 
 		mIsInitialised = true;

@@ -7,6 +7,7 @@ protected:
 	SDL_Texture*	mTexture;
 
 	bool mPhysicsEnabled;
+	bool mDragEnabled;
 	//Weight of Entity (kg)
 	float mMass;
 	//Drag coefficient (default to sphere's value of 0.47)
@@ -36,10 +37,12 @@ public:
 	inline Vector2f const GetPosition() const { return mPosition; };
 	inline float	const GetRotation() const { return mRotation; };
 	inline bool		const GetPhysicsEnabled() const { return mPhysicsEnabled; };
+	inline bool		const GetDragEnabled() const { return mDragEnabled; };
 
 	//Setters
 	inline void SetPosition(const Vector2f position) { mPosition = position; };
 	inline void SetRotation(const float rotation)	 { mRotation = rotation; };
 	inline void SetPhysicsEnabled(const bool state)  { mPhysicsEnabled = state; };
+	inline void SetDragEnabled(const bool state)	 { mDragEnabled = state; };
 };
 

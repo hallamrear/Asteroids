@@ -4,6 +4,9 @@
 Entity::Entity(SDL_Renderer& renderer, std::string texture_path, Vector2f position, float rotation, float weight, float dragCoeff, float speedCap)
 	: mRenderer(renderer)
 {
+	mDragEnabled = false;
+	mPhysicsEnabled = false;
+
 	mPosition = position;
 	mRotation = rotation;
 	mMass = weight;
@@ -45,11 +48,14 @@ void Entity::UpdatePhysics(double deltaTime)
 {
 	if (mPhysicsEnabled)
 	{
-		///Drag
-		Vector2f dragForce;
-		dragForce.X = -mDragCoefficient * mVelocity.X;
-		dragForce.Y = -mDragCoefficient * mVelocity.Y;
-		mNetForce += dragForce;
+		if (mDragEnabled)
+		{
+			///Drag
+			Vector2f dragForce;
+			dragForce.X = -mDragCoefficient * mVelocity.X;
+			dragForce.Y = -mDragCoefficient * mVelocity.Y;
+			mNetForce += dragForce;
+		}
 
 		///External
 		//No need for gravity
