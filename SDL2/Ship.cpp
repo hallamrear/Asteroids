@@ -22,8 +22,8 @@ void Ship::Update(double deltaTime)
 void Ship::Draw()
 {
 	SDL_Rect destRect;
-	destRect.w = 60;
-	destRect.h = 70;
+	destRect.w = 32;
+	destRect.h = 32;
 	destRect.x = (int)(mPosition.X - (destRect.w / 2));
 	destRect.y = (int)(mPosition.Y - (destRect.h / 2));
 	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);

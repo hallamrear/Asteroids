@@ -29,6 +29,8 @@ public:
 	virtual ~Entity() = 0;
 
 	void AddForce(Vector2f force);
+	void AddForce(float X = 0.0f, float Y = 0.0f);
+	void AssignTexture(std::string texture_path);
 
 	virtual void Update(double deltaTime) = 0;
 	virtual void Draw() = 0;

@@ -18,6 +18,7 @@ private:
 	struct SDL_Renderer*		mRenderer;
 	struct SDL_Texture*			mTexture;
 	class  Ship*				mShip;
+	class  Asteroid*				tAsteroid;
 
 	KeyPresses mKeyStates;
 

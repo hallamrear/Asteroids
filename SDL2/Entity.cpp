@@ -18,6 +18,28 @@ Entity::Entity(SDL_Renderer& renderer, std::string texture_path, Vector2f positi
 	mNetForce = Vector2f();
 	mExternalForce = Vector2f();
 
+	AssignTexture(texture_path);
+}
+
+Entity::~Entity()
+{
+	if (mTexture)
+		SDL_DestroyTexture(mTexture);
+}
+
+void Entity::AddForce(Vector2f force)
+{
+	mExternalForce += force;
+}
+
+void Entity::AddForce(float X, float Y)
+{
+	mExternalForce.X += X;
+	mExternalForce.Y += Y;
+}
+
+void Entity::AssignTexture(std::string texture_path)
+{
 	if (texture_path != "")
 	{
 		// Load image as SDL_Surface
@@ -31,17 +53,6 @@ Entity::Entity(SDL_Renderer& renderer, std::string texture_path, Vector2f positi
 		if (mTexture == nullptr)
 			std::cout << "Failed to load texture <" << texture_path << "> error : " << SDL_GetError() << std::endl;
 	}
-}
-
-Entity::~Entity()
-{
-	if (mTexture)
-		SDL_DestroyTexture(mTexture);
-}
-
-void Entity::AddForce(Vector2f force)
-{
-	mExternalForce += force;
 }
 
 void Entity::UpdatePhysics(double deltaTime)
