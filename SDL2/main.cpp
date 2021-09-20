@@ -1,18 +1,18 @@
 #include "PCH.h"
-#include "Application.h"
+#include "Game.h"
 
-Application* app = nullptr;
+Game* app = nullptr;
 int main(int argc, char* argv[])
 {
 	const int FPS = 60;
 	const int frameDelay = 1000 / FPS;
 
-	app = new Application();
+	app = new Game();
 	app->Initialise(argc, argv);
 	
 	if (app->GetIsInitialised() == false)
 	{
-		app->Cleanup();
+		app->Shutdown();
 		delete app;
 		app = nullptr;
 		return 0;
@@ -30,9 +30,14 @@ int main(int argc, char* argv[])
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - oldTime;
 
-		app->HandleEvents((double)deltaTime / 1000.0);
-		app->Update((double)deltaTime / 1000.0);
-		app->Draw();
+		Game::DeltaTime = (double)((double)deltaTime / 1000.0);
+
+		if(deltaTime != 0)
+		{
+			app->HandleEvents();
+			app->Update();
+			app->Draw();
+		}
 
 		frameTime = SDL_GetTicks() - currentTime;
 		if (frameDelay > frameTime)
@@ -41,7 +46,7 @@ int main(int argc, char* argv[])
 		oldTime = currentTime;
 	}
 
-	app->Cleanup();
+	app->Shutdown();
 
 	delete app;
 	app = nullptr;

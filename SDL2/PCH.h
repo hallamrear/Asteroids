@@ -1,4 +1,5 @@
 #pragma once
+#define DRAW_COLLIDERS true
 
 //SDL
 #include "SDL.h"
@@ -7,6 +8,9 @@
 //C++ Libaries
 #include <iostream>
 #include <string>
+#include <functional>
+#include <algorithm>
+#include <random>
+#include <cmath>
 
-//My Variables
 #include "Vector2.h"

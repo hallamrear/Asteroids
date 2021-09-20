@@ -4,13 +4,16 @@ class Asteroid :
 	public Entity
 {
 private:
-	int mSize;
-
+	int mAsteroidSize;
+	int mColliderSize;
+	
 public:
-	Asteroid(SDL_Renderer& renderer, std::string texture_path, int size, Vector2f position, float rotation);
+	Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position = Vector2f(rand() % 1280, rand() % 720), float rotation = (rand() % 359));
 	virtual ~Asteroid();
 
 	void Update(double deltaTime);
 	void Draw();
+
+	int const GetAsteroidSize();
 };
 

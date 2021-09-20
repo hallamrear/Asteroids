@@ -22,7 +22,7 @@ public:
 	inline float GetMagnitude()
 	{
 		//Pythagoras
-		return sqrtf(powf(X, 2.0) + powf(Y, 2.0));
+		return sqrtf((X * X) + (Y * Y));
 	}
 
 	inline Vector2f GetNormalized()
