@@ -6,6 +6,7 @@ enum class COLLIDER_TYPE
 	COLLIDER_UNKNOWN = -1,
 	COLLIDER_AABB = 0,
 	COLLIDER_SPHERE
+	//Todo : add oriented bb
 };
 
 class Collider

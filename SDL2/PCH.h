@@ -1,9 +1,10 @@
 #pragma once
-#define DRAW_COLLIDER false
+#define DRAW_COLLIDER true
 
 //SDL
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
 
 //C++ Libaries
 #include <iostream>

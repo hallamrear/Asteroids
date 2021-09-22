@@ -10,6 +10,7 @@ TextElement::TextElement(SDL_Renderer& renderer, Vector2f position, std::string 
 {
 	mData = string;
 	mColour = colour;
+	mFontSize = size;
 
 	SetPhysicsEnabled(false);
 	SetDragEnabled(false);
@@ -32,20 +33,25 @@ void TextElement::DestroyTexture()
 
 void TextElement::CreateTexture()
 {
+	TTF_Font* font;
+	font = TTF_OpenFont("hyperspace.ttf", (int)mFontSize);
+	if (!font) 
+	{
+		Log::LogMessage(LogLevel::LOG_ERROR, "FAILED TO LOAD FONT");
+		Log::LogMessage(LogLevel::LOG_ERROR, TTF_GetError());
+	}
+
 	SDL_Renderer& renderer = const_cast<SDL_Renderer&>(GetRendererReference());
 	SDL_Surface* textSurface = nullptr;
 	//// Set color to black
 	SDL_Color color = { mColour.R, mColour.G, mColour.B, mColour.A };
 
-	//todo : implement TTF
-	//textSurface = TTF_RenderText_Solid(font, mData.c_str(), color);
+	textSurface = TTF_RenderText_Solid(font, mData.c_str(), color);
 
-	if(textSurface)
+	if(!textSurface)
 	{
 		Log::LogMessage(LogLevel::LOG_ERROR, "FAILED TO RENDER TEXT");
-		Log::LogMessage(LogLevel::LOG_ERROR, SDL_GetError());
-		//todo : undo
-		//Log::LogMessage(LogLevel::LOG_ERROR, TTF_GetError());
+		Log::LogMessage(LogLevel::LOG_ERROR, TTF_GetError());
 		return;
 	}
 
@@ -54,6 +60,9 @@ void TextElement::CreateTexture()
 	
 	SDL_FreeSurface(textSurface);
 	textSurface = nullptr;
+	
+	TTF_CloseFont(font);
+	font = nullptr;
 }
 
 void TextElement::Update(double deltaTime)
@@ -91,6 +100,7 @@ void TextElement::SetShowing(bool state)
 void TextElement::SetString(std::string str)
 {
 	mData = str;
+	mIsDirty = true;
 }
 
 void TextElement::SetColour(Colour colour)

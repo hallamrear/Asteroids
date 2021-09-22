@@ -7,6 +7,7 @@ class Entity;
 class Asteroid;
 class Projectile;
 class Log;
+class TextElement;
 
 class Game
 {
@@ -30,6 +31,7 @@ private:
 	std::vector<Asteroid*>			testAsteroids;
 	std::vector<Projectile*>		testProjectiles;
 	MenuObject*						testDeathEntity;
+	TextElement*					testText;
 
 
 	//Game state functions
@@ -57,7 +59,6 @@ private:
 	void CleanupDeadEntites();
 
 public:
-	Log*							Log;
 	static double					DeltaTime;
 
 	Game();

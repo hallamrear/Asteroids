@@ -28,7 +28,7 @@ Asteroid::Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position, 
 	}
 
 	if (mTexture != nullptr)
-		mColliderSize = mTextureSizeX;
+		mColliderSize = mTextureSizeX - 3;
 	else
 		mColliderSize = 0;
 

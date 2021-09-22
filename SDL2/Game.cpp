@@ -14,7 +14,6 @@
 #define ASTEROID_COUNT 16
 
 double Game::DeltaTime = 0.0;
-Log Game::Log;
 
 Game::Game()
 {
@@ -72,12 +71,12 @@ bool Game::InitialiseWindow(std::string title, int xpos, int ypos, int width, in
 
 	if (mWindow)
 	{
-		Log.LogMessage(LogLevel::LOG_MESSAGE, "Window created.");
+		Log::LogMessage(LogLevel::LOG_MESSAGE, "Window created.");
 		return true;
 	}
 	else
 	{
-		Log.LogMessage(LogLevel::LOG_ERROR, "Window failed to create.");
+		Log::LogMessage(LogLevel::LOG_ERROR, "Window failed to create.");
 		return false;
 	}
 }
@@ -94,12 +93,12 @@ bool Game::InitialiseGraphics()
 
 	if (mRenderer)
 	{
-		Log.LogMessage(LogLevel::LOG_MESSAGE, "Renderer created.");
+		Log::LogMessage(LogLevel::LOG_MESSAGE, "Renderer created.");
 		return true;
 	}
 	else
 	{
-		Log.LogMessage(LogLevel::LOG_ERROR, "Renderer failed to create.");
+		Log::LogMessage(LogLevel::LOG_ERROR, "Renderer failed to create.");
 		return false;
 	}
 }
@@ -126,6 +125,8 @@ bool Game::InitialiseWorldObjects()
 	mInputManager->Bind(IM_KEY_RIGHT_ARROW, std::bind(&Ship::MoveRight, mShip));
 	mInputManager->Bind(IM_KEY_SPACE, std::bind(&Ship::Shoot, mShip, &testProjectiles));
 
+	testText = new TextElement(*mRenderer, Vector2f(100.0f, 100.0f), "DT: ");
+
 	return true;
 }
 
@@ -139,10 +140,10 @@ bool Game::InitialiseSystems()
 		if (InitialiseWindow("Test Window", 128, 128, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, false) == false)
 			return false;
 
-		
-		if (TTF_Init() < 0) {
-			cout <<  << endl;
-			Log::LogMessage(LogLevel::LOG_MESSAGE, "Error initializing SDL_ttf: " << TTF_GetError());
+		if (TTF_Init() < 0)
+		{
+			Log::LogMessage(LogLevel::LOG_ERROR, "Error initializing SDL_ttf");
+			Log::LogMessage(LogLevel::LOG_ERROR, TTF_GetError());
 		}
 
 
@@ -309,14 +310,6 @@ void Game::HandleEvents()
 	}
 }
 
-void Game::Update()
-{
-	mInputManager->Update();
-	mMouseCollider->mOrigin = mInputManager->GetMousePosition();
-	mMouseCollider->Update(DeltaTime);
-	mStateDirector->Update(DeltaTime);
-}
-
 void Game::MenuState_Start()
 {
 	menuEntities.emplace_back(new MenuObject(*mRenderer, "Assets/title.png", Vector2f(mWindowWidth / 2, mWindowHeight / 3), 0.0f));
@@ -389,7 +382,6 @@ void Game::DeathState_Update()
 			mShip->SetAlive(true);
 			mStateDirector->SetState(GameStateIdentifier::GAME_STATE_MAIN_MENU);
 
-
 			//todo : add functions to reset the ship and recreate all the asteroids
 			//todo : add naturally spawning asteroids (use inverse collision with screen windows for setalive() and start them one pixel into the screen flying towards teh center
 		}
@@ -403,8 +395,6 @@ void Game::DeathState_Render()
 
 void Game::PlayState_Start()
 {
-	TextElement* text = new TextElement(*mRenderer, mWindowCentre, 0.0, 12.0f);
-
 	mShip->SetAlive(true);
 	mShip->SetPosition(mWindowCentre);
 
@@ -446,6 +436,7 @@ void Game::PlayState_Update()
 		mStateDirector->SetState(GameStateIdentifier::GAME_STATE_PLAYER_DEATH);
 
 	mShip->Update(DeltaTime);
+
 	///
 	//Wraparound
 	if (mShip->GetPosition().X > (float)mWindowWidth)
@@ -486,42 +477,15 @@ void Game::PlayState_Update()
 			projectile->SetAlive(false);
 		}
 
-		if (Collision_Detection::CheckCollision(mShip->GetCollider(), projectile->GetCollider()))
-		{
-			mShip->SetAlive(false);
-		}
+		//todo : fix it killing the player by accident
+		//if (Collision_Detection::CheckCollision(mShip->GetCollider(), projectile->GetCollider()))
+		//{
+		//	mShip->SetAlive(false);
+		//}
 
 		for (int i = 0; i < asteroidCount; i++)
 		{
-			if (testAsteroids[i]->GetIsAlive() == false)
-				continue;
-
-			if (testAsteroids[i]->GetPosition().X > (float)mWindowWidth)
-			{
-				Vector2f pos = testAsteroids[i]->GetPosition();
-				pos.X -= (float)mWindowWidth;
-				testAsteroids[i]->SetPosition(pos);
-			}
-			else if (testAsteroids[i]->GetPosition().X < 0.0f)
-			{
-				Vector2f pos = testAsteroids[i]->GetPosition();
-				pos.X += mWindowWidth;
-				testAsteroids[i]->SetPosition(pos);
-			}
-
-			if (testAsteroids[i]->GetPosition().Y > mWindowHeight)
-			{
-				Vector2f pos = testAsteroids[i]->GetPosition();
-				pos.Y -= mWindowHeight;
-				testAsteroids[i]->SetPosition(pos);
-			}
-			else if (testAsteroids[i]->GetPosition().Y < 0.0f)
-			{
-				Vector2f pos = testAsteroids[i]->GetPosition();
-				pos.Y += mWindowHeight;
-				testAsteroids[i]->SetPosition(pos);
-			}
-
+			
 			if (Collision_Detection::CheckCollision(projectile->GetCollider(), testAsteroids[i]->GetCollider()))
 			{
 				projectile->SetAlive(false);
@@ -574,6 +538,36 @@ void Game::PlayState_Update()
 			mShip->SetAlive(false);
 		}
 
+		if (testAsteroids[i]->GetIsAlive() == false)
+			continue;
+
+		if (testAsteroids[i]->GetPosition().X >= (float)mWindowWidth)
+		{
+			Vector2f pos = testAsteroids[i]->GetPosition();
+			pos.X -= (float)mWindowWidth;
+			testAsteroids[i]->SetPosition(pos);
+		}
+		else if (testAsteroids[i]->GetPosition().X <= 0.0f)
+		{
+			Vector2f pos = testAsteroids[i]->GetPosition();
+			pos.X += mWindowWidth;
+			testAsteroids[i]->SetPosition(pos);
+		}
+
+		if (testAsteroids[i]->GetPosition().Y >= (float)mWindowHeight)
+		{
+			Vector2f pos = testAsteroids[i]->GetPosition();
+			pos.Y -= mWindowHeight;
+			testAsteroids[i]->SetPosition(pos);
+		}
+		else if (testAsteroids[i]->GetPosition().Y <= 0.0f)
+		{
+			Vector2f pos = testAsteroids[i]->GetPosition();
+			pos.Y += mWindowHeight;
+			testAsteroids[i]->SetPosition(pos);
+		}
+
+
 		testAsteroids[i]->Update(DeltaTime);
 	}
 
@@ -594,14 +588,27 @@ void Game::PlayState_Render()
 	mShip->Render();
 }
 
+void Game::Update()
+{
+	mInputManager->Update();
+	mMouseCollider->mOrigin = mInputManager->GetMousePosition();
+	mMouseCollider->Update(DeltaTime);
+	mStateDirector->Update(DeltaTime);
+
+	std::string s = "DT: " + std::to_string(DeltaTime);
+	testText->SetString(s);
+	testText->Update(DeltaTime);
+}
+
 void Game::Render()
 {
+
 	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mRenderer);
 
 	mMouseCollider->Render(*mRenderer);
-
 	mStateDirector->Render(*mRenderer);
+	testText->Render();
 
 	SDL_RenderPresent(mRenderer);
 }

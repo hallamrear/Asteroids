@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "Log.h"
 
+Log* Log::mInstance = nullptr;
+
 void Log::LogMessage(LogLevel indicator, const char* str)
 {
 	LogMessage(indicator, std::string(str));

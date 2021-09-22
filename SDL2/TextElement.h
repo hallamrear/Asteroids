@@ -9,6 +9,7 @@ private:
 	bool		mIsDirty;
 	std::string mData;
 	Colour		mColour;
+	float		mFontSize;
 
 	void DestroyTexture();
 	void CreateTexture();
