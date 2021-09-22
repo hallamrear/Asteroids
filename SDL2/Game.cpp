@@ -7,11 +7,19 @@
 #include "Projectile.h"
 #include "GameStateDirector.h"
 #include "MenuObject.h"
+#include "GameStates.h"
+#include "Log.h"
+#include "TextElement.h"
+
+#define ASTEROID_COUNT 16
 
 double Game::DeltaTime = 0.0;
+Log Game::Log;
 
 Game::Game()
-{ 
+{
+	mMouseCollider = nullptr;
+	testDeathEntity = nullptr;
 	DeltaTime = 0.0;
 	mWindowWidth = 0;
 	mWindowHeight = 0;
@@ -21,7 +29,6 @@ Game::Game()
 	mRenderer = nullptr;
 	mInputManager = nullptr;
 	mStateDirector = nullptr;
-	mTexture = nullptr;
 	mShip = nullptr;
 	mWindowCollider = nullptr;
 }
@@ -65,12 +72,12 @@ bool Game::InitialiseWindow(std::string title, int xpos, int ypos, int width, in
 
 	if (mWindow)
 	{
-		std::cout << "Window created." << std::endl;
+		Log.LogMessage(LogLevel::LOG_MESSAGE, "Window created.");
 		return true;
 	}
 	else
 	{
-		std::cout << "Window failed to create." << std::endl;
+		Log.LogMessage(LogLevel::LOG_ERROR, "Window failed to create.");
 		return false;
 	}
 }
@@ -87,12 +94,12 @@ bool Game::InitialiseGraphics()
 
 	if (mRenderer)
 	{
-		std::cout << "Renderer created." << std::endl;
+		Log.LogMessage(LogLevel::LOG_MESSAGE, "Renderer created.");
 		return true;
 	}
 	else
 	{
-		std::cout << "Renderer failed to create." << std::endl;
+		Log.LogMessage(LogLevel::LOG_ERROR, "Renderer failed to create.");
 		return false;
 	}
 }
@@ -101,13 +108,14 @@ bool Game::InitialiseWorldObjects()
 {
 	SetupGameStateFunctions();
 
-	mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), Vector2f(300.0f, 300.0f), 0.0f, 32.0f, 1.2f, 5.0f);
+	mWindowCentre = Vector2f(mWindowWidth / 2.0f, mWindowHeight / 2.0f);
+	mWindowCollider = new BoundingBox(mWindowCentre, mWindowWidth, mWindowHeight);
+	mMouseCollider = new BoundingBox(mWindowCentre, 8, 8);
 
-	if (!mShip)
-		return false;
-
+	mShip = new Ship(*mRenderer, std::string("Assets/ship.bmp"), mWindowCentre, 0.0f, 32.0f, 1.2f, 5.0f);
 	mShip->SetPhysicsEnabled(true);
 	mShip->SetDragEnabled(true);
+
 	mInputManager->Bind(IM_KEY_W, std::bind(&Ship::MoveUp, mShip));
 	mInputManager->Bind(IM_KEY_UP_ARROW, std::bind(&Ship::MoveUp, mShip));
 	mInputManager->Bind(IM_KEY_S, std::bind(&Ship::MoveDown, mShip));
@@ -118,40 +126,25 @@ bool Game::InitialiseWorldObjects()
 	mInputManager->Bind(IM_KEY_RIGHT_ARROW, std::bind(&Ship::MoveRight, mShip));
 	mInputManager->Bind(IM_KEY_SPACE, std::bind(&Ship::Shoot, mShip, &testProjectiles));
 
-	Vector2f size = Vector2f( mWindowWidth / 2.0f, mWindowHeight / 2.0f);
-	mWindowCollider	= new BoundingBox(size, mWindowWidth, mWindowHeight);
-	mMouseCollider = new BoundingBox(size, 8, 8);
-	bool needsMoving = true;
-
-	for (int i = 0; i < 24; i++)
-	{
-		int n = rand() % 3 + 1;
-
-		testAsteroids.push_back(new Asteroid(*mRenderer, n));
-
-		testAsteroids.back()->AddForce(Vector2f(rand() % 256 - 128, rand() % 256 - 128));
-
-		if (!testAsteroids[i])
-			return false;
-	}
-
-	
-	menuEntities.emplace_back(new MenuObject(*mRenderer, "Assets/title.png", Vector2f(mWindowWidth / 2, mWindowHeight / 3), 0.0f));
-	menuEntities.emplace_back(new MenuObject(*mRenderer, "Assets/play.png", Vector2f(mWindowWidth / 2, (mWindowHeight / 3) * 2), 0.0f));
-
-	testDeathEntity = new MenuObject(*mRenderer, "Assets/death.png", Vector2f(mWindowWidth / 2, mWindowHeight / 2), 0.0f);
-
 	return true;
 }
 
 bool Game::InitialiseSystems()
 {
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
-		std::cout << "Subsystem created." << std::endl;
+		Log::LogMessage(LogLevel::LOG_MESSAGE, "Subsystem created.");
 
 		if (InitialiseWindow("Test Window", 128, 128, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, false) == false)
 			return false;
+
+		
+		if (TTF_Init() < 0) {
+			cout <<  << endl;
+			Log::LogMessage(LogLevel::LOG_MESSAGE, "Error initializing SDL_ttf: " << TTF_GetError());
+		}
+
 
 		SDL_GetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
 
@@ -192,24 +185,32 @@ void Game::SetupGameStateFunctions()
 	mStateDirector->SetupState(
 		new DirectorState(
 			GameStateIdentifier::GAME_STATE_MAIN_MENU,
+			std::bind(&Game::MenuState_Start, this),
 			std::bind(&Game::MenuState_Update, this),
-			std::bind(&Game::MenuState_Render, this)));
+			std::bind(&Game::MenuState_Render, this),
+			std::bind(&Game::MenuState_End, this)
+	));
 
 	mStateDirector->SetupState(
 		new DirectorState(
 			GameStateIdentifier::GAME_STATE_RUNNING,
+			std::bind(&Game::PlayState_Start, this),
 			std::bind(&Game::PlayState_Update, this),
-			std::bind(&Game::PlayState_Render, this)));
+			std::bind(&Game::PlayState_Render, this),
+			std::bind(&Game::PlayState_End, this)
+	));
 
 
 	mStateDirector->SetupState(
 		new DirectorState(
 			GameStateIdentifier::GAME_STATE_PLAYER_DEATH,
+			std::bind(&Game::DeathState_Start, this),
 			std::bind(&Game::DeathState_Update, this),
-			std::bind(&Game::DeathState_Render, this)));
+			std::bind(&Game::DeathState_Render, this),
+				std::bind(&Game::DeathState_End, this)
+		));
 
 	mStateDirector->SetState(GameStateIdentifier::GAME_STATE_MAIN_MENU);
-
 }
 
 void Game::CleanupDeadEntites()
@@ -316,6 +317,26 @@ void Game::Update()
 	mStateDirector->Update(DeltaTime);
 }
 
+void Game::MenuState_Start()
+{
+	menuEntities.emplace_back(new MenuObject(*mRenderer, "Assets/title.png", Vector2f(mWindowWidth / 2, mWindowHeight / 3), 0.0f));
+	menuEntities.emplace_back(new MenuObject(*mRenderer, "Assets/play.png", Vector2f(mWindowWidth / 2, (mWindowHeight / 3) * 2), 0.0f));
+}
+
+void Game::MenuState_End()
+{
+	if(menuEntities.size() != 0)
+	{
+		for (int i = 0; i < menuEntities.size(); i++)
+		{
+			delete menuEntities[i];
+			menuEntities[i] = nullptr;
+		}
+
+		menuEntities.clear();
+	}
+}
+
 void Game::MenuState_Update()
 {
 	for (auto* itr : menuEntities)
@@ -339,7 +360,21 @@ void Game::MenuState_Render()
 {
 	for(auto& itr : menuEntities)
 	{
-		itr->Draw();
+		itr->Render();
+	}
+}
+
+void Game::DeathState_Start()
+{
+	testDeathEntity = new MenuObject(*mRenderer, "Assets/death.png", Vector2f(mWindowWidth / 2, mWindowHeight / 2), 0.0f);
+}
+
+void Game::DeathState_End()
+{
+	if(testDeathEntity)
+	{
+		delete testDeathEntity;
+		testDeathEntity = nullptr;
 	}
 }
 
@@ -359,12 +394,50 @@ void Game::DeathState_Update()
 			//todo : add naturally spawning asteroids (use inverse collision with screen windows for setalive() and start them one pixel into the screen flying towards teh center
 		}
 	}
-
 }
 
 void Game::DeathState_Render()
 {
-	testDeathEntity->Draw();
+	testDeathEntity->Render();
+}
+
+void Game::PlayState_Start()
+{
+	TextElement* text = new TextElement(*mRenderer, mWindowCentre, 0.0, 12.0f);
+
+	mShip->SetAlive(true);
+	mShip->SetPosition(mWindowCentre);
+
+	Vector2f val;
+	for (int i = 0; i < ASTEROID_COUNT; i++)
+	{
+		testAsteroids.push_back(
+			new Asteroid(
+				*mRenderer,
+				3, 
+				Vector2f(
+					mWindowCentre.X + (float)GetRandomIntExcludingCentre(640, 640 - 200),
+					mWindowCentre.X + (float)GetRandomIntExcludingCentre(640, 640 - 200)
+				)));
+
+		val.X = (float)GetRandomIntExcludingCentre(512, 256);
+		val.Y = (float)GetRandomIntExcludingCentre(512, 256);
+
+		testAsteroids.back()->AddForce(val);
+	}
+}
+
+void Game::PlayState_End()
+{
+	for (int i = 0; i < testAsteroids.size(); i++)
+	{
+		delete testAsteroids[i];
+		testAsteroids[i] = nullptr;
+	}
+
+	testAsteroids.clear();
+
+	mShip->SetAlive(false);
 }
 
 void Game::PlayState_Update()
@@ -403,7 +476,6 @@ void Game::PlayState_Update()
 	///
 
 	int asteroidCount = testAsteroids.size();
-	std::cout << "asteroid count : " << asteroidCount << std::endl;
 
 	for (auto& projectile : testProjectiles)
 	{
@@ -455,23 +527,35 @@ void Game::PlayState_Update()
 				projectile->SetAlive(false);
 				testAsteroids[i]->SetAlive(false);
 				Vector2f position = testAsteroids[i]->GetPosition();
+				Vector2f force;
 
 				switch (testAsteroids[i]->GetAsteroidSize())
 				{
 				//Create 2 of size 2
 				case 3:
+					force.X = (float)GetRandomIntExcludingCentre(512, 256);
+					force.Y = (float)GetRandomIntExcludingCentre(512, 256);
 					testAsteroids.push_back(new Asteroid(*mRenderer, 2, position));
-					testAsteroids.back()->AddForce(Vector2f(rand() % 256 - 128, rand() % 256 - 128));
+					testAsteroids.back()->AddForce(force * testAsteroids[i]->GetAsteroidSize());
+
+					force.X = (float)GetRandomIntExcludingCentre(512, 256);
+					force.Y = (float)GetRandomIntExcludingCentre(512, 256);
 					testAsteroids.push_back(new Asteroid(*mRenderer, 2, position));
-					testAsteroids.back()->AddForce(Vector2f(rand() % 256 - 128, rand() % 256 - 128));
+					testAsteroids.back()->AddForce(force * testAsteroids[i]->GetAsteroidSize());
+
 					break;
 
 				//Create 2 of size 1
 				case 2:
+					force.X = (float)GetRandomIntExcludingCentre(512, 256);
+					force.Y = (float)GetRandomIntExcludingCentre(512, 256);
 					testAsteroids.push_back(new Asteroid(*mRenderer, 1, position));
-					testAsteroids.back()->AddForce(Vector2f(rand() % 256 - 128, rand() % 256 - 128));
+					testAsteroids.back()->AddForce(force * testAsteroids[i]->GetAsteroidSize());
+
+					force.X = (float)GetRandomIntExcludingCentre(512, 256);
+					force.Y = (float)GetRandomIntExcludingCentre(512, 256);
 					testAsteroids.push_back(new Asteroid(*mRenderer, 1, position));
-					testAsteroids.back()->AddForce(Vector2f(rand() % 256 - 128, rand() % 256 - 128));
+					testAsteroids.back()->AddForce(force * testAsteroids[i]->GetAsteroidSize());
 					break;
 
 				//Do not create any new ones
@@ -500,22 +584,22 @@ void Game::PlayState_Update()
 void Game::PlayState_Render()
 {
 	for (auto asteroid : testAsteroids)
-		asteroid->Draw();
+		asteroid->Render();
 
 	for (auto& projectile : testProjectiles)
-		projectile->Draw();
+		projectile->Render();
 
-	mWindowCollider->Draw(*mRenderer);
+	mWindowCollider->Render(*mRenderer);
 
-	mShip->Draw();
+	mShip->Render();
 }
 
-void Game::Draw()
+void Game::Render()
 {
 	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mRenderer);
 
-	mMouseCollider->Draw(*mRenderer);
+	mMouseCollider->Render(*mRenderer);
 
 	mStateDirector->Render(*mRenderer);
 

@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "Game.h"
 
+//Todo : copyright notice for font
+
 Game* app = nullptr;
 int main(int argc, char* argv[])
 {
@@ -36,7 +38,7 @@ int main(int argc, char* argv[])
 		{
 			app->HandleEvents();
 			app->Update();
-			app->Draw();
+			app->Render();
 		}
 
 		frameTime = SDL_GetTicks() - currentTime;

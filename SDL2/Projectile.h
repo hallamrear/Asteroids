@@ -11,7 +11,7 @@ public:
 	~Projectile();
 
 	void Update(double deltaTime);
-	void Draw();
+	void Render();
 
 	float const GetProjectileSpeed();
 };

@@ -17,7 +17,7 @@ public:
 	Collider(Vector2f& origin) : mOrigin(origin), mType(COLLIDER_TYPE::COLLIDER_UNKNOWN) { }
 
 	virtual void Update(double deltaTime) = 0;
-	virtual void Draw(SDL_Renderer& renderer) = 0;
+	virtual void Render(SDL_Renderer& renderer) = 0;
 };
 
 class BoundingBox
@@ -56,9 +56,9 @@ public:
 		BottomRight = Vector2f(mOrigin.X + (size.X / 2), mOrigin.Y + (size.Y / 2));
 	}
 
-	inline void Draw(SDL_Renderer& renderer)
+	inline void Render(SDL_Renderer& renderer)
 	{
-		if(DRAW_COLLIDERS)
+		if(DRAW_COLLIDER)
 		{
 			SDL_Rect r;
 			r.x = mOrigin.X - (size.X / 2);
@@ -99,9 +99,9 @@ public:
 		
 	}
 
-	virtual void Draw(SDL_Renderer& renderer)
+	virtual void Render(SDL_Renderer& renderer)
 	{
-		if(DRAW_COLLIDERS)
+		if(DRAW_COLLIDER)
 		{
 			Vector2f point;
 			for (double angle = 0; angle <= 2 * M_PI; angle += 0.5)

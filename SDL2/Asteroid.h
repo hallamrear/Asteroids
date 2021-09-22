@@ -12,7 +12,7 @@ public:
 	virtual ~Asteroid();
 
 	void Update(double deltaTime);
-	void Draw();
+	void Render();
 
 	int const GetAsteroidSize();
 };

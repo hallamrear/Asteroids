@@ -44,7 +44,7 @@ void Ship::Update(double deltaTime)
 	}
 }
 
-void Ship::Draw()
+void Ship::Render()
 {
 	SDL_Rect destRect;
 	destRect.w = mTextureSizeX;
@@ -54,7 +54,7 @@ void Ship::Draw()
 	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)
-		mCollider->Draw(mRenderer);
+		mCollider->Render(mRenderer);
 }
 
 void Ship::MoveUp()
@@ -81,7 +81,7 @@ void Ship::Shoot(std::vector<Projectile*>* projectile_vector)
 {
 	if(mCanShoot)
 	{
-		Projectile* projectile = new Projectile(mRenderer, mPosition + (mVelocity.GetNormalized() * 15), mRotation, "Assets/projectile.bmp");
+		Projectile* projectile = new Projectile(mRenderer, mPosition + (mVelocity.GetNormalized() * 25), mRotation, "Assets/projectile.bmp");
 		projectile->AddForce(mVelocity + (mVelocity.GetNormalized() * 2 * projectile->GetProjectileSpeed()));
 		projectile_vector->push_back(projectile);
 

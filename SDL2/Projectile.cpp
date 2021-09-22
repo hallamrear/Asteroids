@@ -39,7 +39,7 @@ void Projectile::Update(double deltaTime)
 	}
 }
 
-void Projectile::Draw()
+void Projectile::Render()
 {
 	SDL_Rect destRect;
 	destRect.w = mTextureSizeX;
@@ -49,7 +49,7 @@ void Projectile::Draw()
 	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)
-		mCollider->Draw(mRenderer);
+		mCollider->Render(mRenderer);
 }
 
 float const Projectile::GetProjectileSpeed()

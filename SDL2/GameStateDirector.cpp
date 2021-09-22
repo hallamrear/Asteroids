@@ -23,8 +23,36 @@ void GameStateDirector::SetState(const GameStateIdentifier state)
 	{
 		if(itr->Identifier == state)
 		{
+			if (mCurrentState)
+			{
+				if (mCurrentState->EndFunction)
+					mCurrentState->EndFunction();
+			}
+
+			if (itr->StartFunction)
+				itr->StartFunction();
+			
 			mCurrentState = itr;
 			return;
+
+			/*
+			if (mCurrentState)
+			{
+				if (mCurrentState->EndFunction)
+					mCurrentState->EndFunction();
+
+				mCurrentState = itr;
+
+				if (mCurrentState->StartFunction)
+					mCurrentState->StartFunction();
+			}
+			else
+
+				mCurrentState = itr;
+
+			return;
+			 */
+
 		}
 	}
 }
@@ -36,10 +64,19 @@ const DirectorState* GameStateDirector::GetState()
 
 void GameStateDirector::Update(double deltaTime)
 {
-	mCurrentState->UpdateFunction();
+	if(mCurrentState->UpdateFunction)
+	{
+		float dt = static_cast<float>(deltaTime);
+		mCurrentState->UpdateFunction(dt);
+	}
+
 }
 
 void GameStateDirector::Render(SDL_Renderer& renderer)
 {
-	mCurrentState->RenderFunction(renderer);
+	if (mCurrentState->RenderFunction)
+	{
+		mCurrentState->RenderFunction(renderer);
+	}
+
 }

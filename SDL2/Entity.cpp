@@ -49,27 +49,26 @@ void Entity::AssignTexture(std::string texture_path)
 		// Load image as SDL_Surface
 		SDL_Surface* surface = IMG_Load(texture_path.c_str());
 		if (surface == nullptr)
-		{
 			std::cout << "Failed to load surface <" << texture_path << "> error : " << SDL_GetError() << std::endl;
-		}
 
 		// SDL_Surface is just the raw pixels
 		// Convert it to a hardware-optimzed texture so we can render it
 		mTexture = SDL_CreateTextureFromSurface(&mRenderer, surface);
 		if (mTexture == nullptr)
-		{
 			std::cout << "Failed to load texture <" << texture_path << "> error : " << SDL_GetError() << std::endl;
-		}
 
 		SDL_QueryTexture(mTexture, NULL, NULL, &mTextureSizeX, &mTextureSizeY);
 		// Don't need the orignal texture, release the memory
 		SDL_FreeSurface(surface);
 
 		if (mTexture == nullptr)
-		{
 			std::cout << "Failed to load texture <" << texture_path << "> error : " << SDL_GetError() << std::endl;
-		}
 	}
+}
+
+const SDL_Renderer& Entity::GetRendererReference()
+{
+	return mRenderer;
 }
 
 void Entity::UpdatePhysics(double deltaTime)

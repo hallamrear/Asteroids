@@ -1,5 +1,5 @@
 #pragma once
-#define DRAW_COLLIDERS true
+#define DRAW_COLLIDER false
 
 //SDL
 #include "SDL.h"
@@ -14,3 +14,4 @@
 #include <cmath>
 
 #include "Vector2.h"
+#include "Helper.h"

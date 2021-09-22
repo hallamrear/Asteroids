@@ -6,7 +6,6 @@ MenuObject::MenuObject(SDL_Renderer& renderer, std::string texture_path, Vector2
 {
 	mPhysicsEnabled = false;
 	mDragEnabled = false;
-
 	mCollider = new BoundingBox(position, mTextureSizeX, mTextureSizeY);
 }
 
@@ -26,10 +25,10 @@ void MenuObject::Update(double deltaTime)
 	}
 }
 
-void MenuObject::Draw()
+void MenuObject::Render()
 {
 	if (mCollider)
-		mCollider->Draw(mRenderer);
+		mCollider->Render(mRenderer);
 
 	SDL_Rect destRect;
 	destRect.w = mTextureSizeX;

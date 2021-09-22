@@ -6,10 +6,13 @@ class MenuObject;
 class Entity;
 class Asteroid;
 class Projectile;
+class Log;
 
 class Game
 {
 private:
+
+	Vector2f						mWindowCentre;
 	int								mWindowWidth;
 	int								mWindowHeight;
 	bool							mIsInitialised;
@@ -19,11 +22,10 @@ private:
 	struct SDL_Renderer*			mRenderer;
 	class  InputManager*			mInputManager;
 	class  GameStateDirector*		mStateDirector;
-	struct SDL_Texture*				mTexture;
+
 	class  Ship*					mShip;
 	class  BoundingBox*				mWindowCollider;
 	class  BoundingBox*				mMouseCollider;
-
 	std::vector<MenuObject*>		menuEntities;
 	std::vector<Asteroid*>			testAsteroids;
 	std::vector<Projectile*>		testProjectiles;
@@ -31,12 +33,21 @@ private:
 
 
 	//Game state functions
+	//Menu
+	void							MenuState_Start();
 	void							MenuState_Update();
-	void							PlayState_Update();
-	void							DeathState_Update();
 	void							MenuState_Render();
+	void							MenuState_End();
+	//Play
+	void							PlayState_Start();
+	void							PlayState_Update();
 	void							PlayState_Render();
+	void							PlayState_End();
+	//Death
+	void							DeathState_Start();
+	void							DeathState_Update();
 	void							DeathState_Render();
+	void							DeathState_End();
 
 	bool InitialiseGraphics();
 	bool InitialiseWindow(std::string title = "", int xpos = 0, int ypos = 0, int width = 0, int height = 0, Uint32 flags = SDL_WINDOW_SHOWN, bool isFullscreen = false);
@@ -46,6 +57,7 @@ private:
 	void CleanupDeadEntites();
 
 public:
+	Log*							Log;
 	static double					DeltaTime;
 
 	Game();
@@ -55,7 +67,7 @@ public:
 
 	void HandleEvents();
 	void Update();
-	void Draw();
+	void Render();
 
 	//Setters
 	void SetIsRunning(bool state) { mIsRunning = state; };

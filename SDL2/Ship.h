@@ -16,7 +16,7 @@ public:
 	virtual ~Ship();
 
 	void Update(double deltaTime);
-	void Draw();
+	void Render();
 
 	void MoveUp();
 	void MoveDown();
