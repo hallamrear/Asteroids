@@ -5,7 +5,7 @@
 Ship::Ship(SDL_Renderer& renderer, std::string texture_path, Vector2f position, float rotation, float weight, float dragCoeff, float speedCap)
 	: Entity(renderer, texture_path, position, rotation, weight, dragCoeff, speedCap)
 {
-	mCollider = new BoundingBox(position, 32, 32);
+	mCollider = new OrientedBoundingBox(position, mRotation, mTextureSizeX, mTextureSizeY);
 
 	mMovementSpeed = 250.0f;
 	mCanShoot = true;
@@ -23,34 +23,46 @@ Ship::~Ship()
 
 void Ship::Update(double deltaTime)
 {
-	UpdatePhysics(deltaTime);
-	mRotation = (float)(180.0 / M_PI) * atan2(mVelocity.Y, mVelocity.X) + 90.0f;
-
-	if (mCollider)
+	if(GetIsAlive())
 	{
-		mCollider->mOrigin = mPosition;	
-		mCollider->Update(deltaTime);
-	}
+		UpdatePhysics(deltaTime);
+		mRotation = (float)(180.0 / M_PI) * atan2(mVelocity.Y, mVelocity.X) + 90.0f;
 
-	if(mCanShoot == false)
-	{
-		mShootCooldown -= static_cast<float>(deltaTime);
-
-		if(mShootCooldown <= 0.0f)
+		if (mCollider)
 		{
-			mCanShoot = true;
-			mShootCooldown = SHIP_SHOOT_COOLDOWN;
+			if (dynamic_cast<OrientedBoundingBox*>(mCollider))
+			{
+				auto collider = dynamic_cast<OrientedBoundingBox*>(mCollider);
+				collider->Rotation = mRotation;
+				collider = nullptr;
+			}
+
+			mCollider->mOrigin = mPosition;
+			mCollider->Update(deltaTime);
+		}
+
+		if (mCanShoot == false)
+		{
+			mShootCooldown -= static_cast<float>(deltaTime);
+
+			if (mShootCooldown <= 0.0f)
+			{
+				mCanShoot = true;
+				mShootCooldown = SHIP_SHOOT_COOLDOWN;
+			}
 		}
 	}
+	
 }
 
 void Ship::Render()
 {
-	SDL_Rect destRect;
+	//todo : this render code is repeated alot it could probably be a function
+	SDL_Rect destRect{};
 	destRect.w = mTextureSizeX;
 	destRect.h = mTextureSizeY;
-	destRect.x = (int)(mPosition.X - (destRect.w / 2));
-	destRect.y = (int)(mPosition.Y - (destRect.h / 2));
+	destRect.x = (int)(mPosition.X) - (destRect.w / 2);
+	destRect.y = (int)(mPosition.Y) - (destRect.h / 2);
 	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)
@@ -81,10 +93,18 @@ void Ship::Shoot(std::vector<Projectile*>* projectile_vector)
 {
 	if(mCanShoot)
 	{
-		Projectile* projectile = new Projectile(mRenderer, mPosition + (mVelocity.GetNormalized() * 25), mRotation, "Assets/projectile.bmp");
-		projectile->AddForce(mVelocity + (mVelocity.GetNormalized() * 2 * projectile->GetProjectileSpeed()));
-		projectile_vector->push_back(projectile);
+		if(mVelocity.X != 0.0f && mVelocity.Y != 0.0f)
+		{
+			Projectile* projectile = new Projectile(mRenderer, mPosition + (mVelocity.GetNormalized() * 25), mRotation, "Assets/projectile.bmp");
+			projectile->AddForce(mVelocity + (mVelocity.GetNormalized() * 2 * projectile->GetProjectileSpeed()));
+			projectile->SetAlive(true);
+			projectile_vector->push_back(projectile);
 
-		mCanShoot = false;
+			//todo : make a proper sound system
+			std::string s = "Assets/Sounds/laser.wav";
+			PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+
+			mCanShoot = false;
+		}	
 	}
 }

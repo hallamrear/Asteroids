@@ -83,11 +83,11 @@ void TextElement::Render()
 {
 	if(GetIsAlive())
 	{
-		SDL_Rect destRect;
+		SDL_Rect destRect{};
 		destRect.w = mTextureSizeX;
 		destRect.h = mTextureSizeY;
-		destRect.x = (int)(mPosition.X - (destRect.w / 2));
-		destRect.y = (int)(mPosition.Y - (destRect.h / 2));
+		destRect.x = static_cast<int>(mPosition.X) - (destRect.w / 2);
+		destRect.y = static_cast<int>(mPosition.Y) - (destRect.h / 2);
 		SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 	}
 }

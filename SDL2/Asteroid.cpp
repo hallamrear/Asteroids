@@ -28,18 +28,12 @@ Asteroid::Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position, 
 	}
 
 	if (mTexture != nullptr)
-		mColliderSize = mTextureSizeX - 3;
-	else
-		mColliderSize = 0;
-
-	if(mColliderSize != 0)
-		mCollider = new BoundingBox(position, mColliderSize, mColliderSize);
+		mCollider = new OrientedBoundingBox(position, rotation, mTextureSizeX, mTextureSizeY);
 }
 
 Asteroid::~Asteroid()
 {
 	mAsteroidSize = NULL;
-	mColliderSize = NULL;
 	mPhysicsEnabled = false;
 	mDragEnabled = false;
 
@@ -58,6 +52,13 @@ void Asteroid::Update(double deltaTime)
 
 		if (mCollider)
 		{
+			if(dynamic_cast<OrientedBoundingBox*>(mCollider))
+			{
+				auto collider = dynamic_cast<OrientedBoundingBox*>(mCollider);
+				collider->Rotation = mRotation;
+				collider = nullptr;
+			}
+
 			mCollider->mOrigin = mPosition;
 			mCollider->Update(deltaTime);
 		}
@@ -66,11 +67,11 @@ void Asteroid::Update(double deltaTime)
 
 void Asteroid::Render()
 {
-	SDL_Rect destRect;
+	SDL_Rect destRect{};
 	destRect.w = mTextureSizeX;
 	destRect.h = mTextureSizeY;
-	destRect.x = (int)(mPosition.X - (destRect.w / 2));
-	destRect.y = (int)(mPosition.Y - (destRect.h / 2));
+	destRect.x = (int)(mPosition.X) - (destRect.w / 2);
+	destRect.y = (int)(mPosition.Y) - (destRect.h / 2);
 	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)

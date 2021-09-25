@@ -13,3 +13,33 @@ inline int GetRandomIntExcludingCentre(int upperBound, int lowerBound)
 
 	return value;
 }
+
+inline Vector2f RotatePointAroundOrigin(Vector2f point, float rotation, Vector2f origin)
+{
+	float s = sin(rotation);
+	float c = cos(rotation);
+
+	// translate point back to origin:
+	point.X -= origin.X;
+	point.Y -= origin.Y;
+
+	// rotate point
+	float xnew = point.X * c - point.Y * s;
+	float ynew = point.X * s + point.Y * c;
+
+	// translate point back:
+	Vector2f value;
+	value.X = xnew + origin.X;
+	value.Y = ynew + origin.Y;
+	return value;
+}
+
+inline float ConvertToRadians(float degrees)
+{
+	return degrees * (float)(M_PI / 180.0);
+}
+
+inline float ConvertToDegrees(float radians)
+{
+	return radians * (float)(180.0 / M_PI);
+}

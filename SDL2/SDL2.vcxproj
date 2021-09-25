@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Colour.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Asteroid.cpp" />

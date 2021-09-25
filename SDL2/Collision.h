@@ -5,8 +5,8 @@ enum class COLLIDER_TYPE
 {
 	COLLIDER_UNKNOWN = -1,
 	COLLIDER_AABB = 0,
-	COLLIDER_SPHERE
-	//Todo : add oriented bb
+	COLLIDER_SPHERE,
+	COLLIDER_OBB
 };
 
 class Collider
@@ -25,19 +25,17 @@ class BoundingBox
 	: public Collider
 {
 public:
-	bool isColliding = false;
-
 	Vector2f TopLeft;
 	Vector2f BottomRight;
-	Vector2f size;
+	Vector2f Size;
 
-	BoundingBox(Vector2f& position, int size_x, int size_y)
+	BoundingBox(Vector2f position, int size_x, int size_y)
 		: Collider(position)
 	{
 		mType = COLLIDER_TYPE::COLLIDER_AABB;
 
-		size.X = size_x;
-		size.Y = size_y;
+		Size.X = (float)size_x;
+		Size.Y = (float)size_y;
 
 		int size_half_x = size_x / 2;
 		int size_half_y = size_y / 2;
@@ -51,39 +49,103 @@ public:
 
 	};
 
-	inline void Update(double deltaTime)
+	virtual void Update(double deltaTime)
 	{
-		TopLeft = Vector2f(mOrigin.X - (size.X / 2), mOrigin.Y - (size.Y / 2));
-		BottomRight = Vector2f(mOrigin.X + (size.X / 2), mOrigin.Y + (size.Y / 2));
+		TopLeft = Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y - (Size.Y / 2));
+		BottomRight = Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y + (Size.Y / 2));
 	}
 
-	inline void Render(SDL_Renderer& renderer)
+	virtual void Render(SDL_Renderer& renderer)
 	{
 		if(DRAW_COLLIDER)
 		{
-			SDL_Rect r;
-			r.x = mOrigin.X - (size.X / 2);
-			r.y = mOrigin.Y - (size.Y / 2);
-			r.w = size.X;
-			r.h = size.Y;
+			SDL_Rect r{};
+			r.x = (int)(mOrigin.X - (Size.X / 2));
+			r.y = (int)(mOrigin.Y - (Size.Y / 2));
+			r.w = (int)(Size.X);
+			r.h = (int)(Size.Y);
 
-			if (isColliding)
-				SDL_SetRenderDrawColor(&renderer, 0, 255, 0, 255);
-			else
-				SDL_SetRenderDrawColor(&renderer, 255, 255, 0, 255);
-
+			SDL_SetRenderDrawColor(&renderer, 255, 255, 0, 255);
 			SDL_RenderDrawRect(&renderer, &r);
 		}
 	};
+};
+
+
+class OrientedBoundingBox : public BoundingBox
+{
+protected:
+	
+
+	void CalculateRotations()
+	{
+		float rotationRadians = ConvertToRadians(Rotation);
+
+		TopLeft = RotatePointAroundOrigin(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y - (Size.Y / 2)), rotationRadians, mOrigin);
+		BottomLeft = RotatePointAroundOrigin(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y + (Size.Y / 2)), rotationRadians, mOrigin);
+		TopRight = RotatePointAroundOrigin(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y - (Size.Y / 2)), rotationRadians, mOrigin);
+		BottomRight = RotatePointAroundOrigin(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y + (Size.Y / 2)), rotationRadians, mOrigin);
+	}
+
+public:
+	float Rotation;
+	Vector2f TopRight;
+	Vector2f BottomLeft;
+
+	OrientedBoundingBox(Vector2f position, float rotation, int size_x, int size_y)
+		: BoundingBox(position, size_x, size_y)
+	{
+		Rotation = rotation;
+		mType = COLLIDER_TYPE::COLLIDER_OBB;
+		CalculateRotations();
+	}
+
+	~OrientedBoundingBox()
+	{
+		Rotation = 0.0f;
+	}
+
+	virtual void Update(double deltaTime)
+	{
+		CalculateRotations();
+	}
+
+	virtual void Render(SDL_Renderer& renderer)
+	{
+		if (DRAW_COLLIDER)
+		{
+			SDL_SetRenderDrawColor(&renderer, 255, 0, 0, 255);
+
+			//Todo : this is disgusting maybe make a vector2i
+			//Top
+			SDL_RenderDrawLine(&renderer, (int)TopLeft.X, (int)TopLeft.Y, (int)TopRight.X, (int)TopRight.Y);
+			//Bot
+			SDL_RenderDrawLine(&renderer, (int)BottomLeft.X, (int)BottomLeft.Y, (int)BottomRight.X, (int)BottomRight.Y);
+			//Left
+			SDL_RenderDrawLine(&renderer, (int)TopLeft.X, (int)TopLeft.Y, (int)BottomLeft.X, (int)BottomLeft.Y);
+			//Right
+			SDL_RenderDrawLine(&renderer, (int)TopRight.X, (int)TopRight.Y, (int)BottomRight.X, (int)BottomRight.Y);
+		}
+	}
+
+	//Fills array with points of the box.
+	void GetBoxAsPoints(Vector2f points[])
+	{
+		//BL;
+		points[0] = BottomLeft;
+		points[1] = BottomRight;
+		points[2] = TopRight;
+		points[3] = TopLeft;
+	}
 };
 
 class BoundingSphere
 	: public Collider
 {
 public:
-	int mRadius = 0;
+	float mRadius = 0;
 
-	BoundingSphere(Vector2f& position, int radius)
+	BoundingSphere(Vector2f& position, float radius)
 		: Collider(position)
 	{
 		mType = COLLIDER_TYPE::COLLIDER_SPHERE;
@@ -105,11 +167,11 @@ public:
 		if(DRAW_COLLIDER)
 		{
 			Vector2f point;
-			for (double angle = 0; angle <= 2 * M_PI; angle += 0.5)
+			for (float angle = 0; angle <= 2 * M_PI; angle += 0.5)
 			{
 				point.X = mOrigin.X + mRadius * cos(angle);
 				point.Y = mOrigin.Y + mRadius * sin(angle);
-				SDL_RenderDrawPoint(&renderer, point.X, point.Y);
+				SDL_RenderDrawPoint(&renderer, (int)point.X, (int)point.Y);
 			}
 		}
 	}
@@ -118,67 +180,5 @@ public:
 
 namespace Collision_Detection
 {
-	//Box to Box
-	inline static bool CheckCollision_AABBvsAABB(BoundingBox& one, BoundingBox& two)
-	{
-		return ((one.TopLeft.X <= two.BottomRight.X && one.BottomRight.X >= two.TopLeft.X)
-			   && 
-			   (one.TopLeft.Y <= two.BottomRight.Y && one.BottomRight.Y >= two.TopLeft.Y));
-	};
-
-	//Box to Sphere
-	inline static bool CheckCollision_AABBvsSPHERE(BoundingBox& one, BoundingSphere& two)
-	{
-		Vector2f corners[4] =
-		{
-			one.TopLeft,
-			Vector2f(one.TopLeft.X, one.BottomRight.Y),
-			one.BottomRight,
-			Vector2f(one.BottomRight.X, one.TopLeft.Y)
-		};
-
-		//TODO : Finish
-
-		//return dist <= two.mRadius * two.mRadius;
-		return false;
-	};
-
-	//Sphere to Sphere
-	inline static bool CheckCollision_SPHEREvsSPHERE(BoundingSphere& one, BoundingSphere& two)
-	{
-		double deltaXSquared = one.mOrigin.X - two.mOrigin.X; // calc. delta X
-		deltaXSquared *= deltaXSquared; // square delta X
-
-		double deltaYSquared = one.mOrigin.Y - two.mOrigin.Y; // calc. delta Y
-		deltaYSquared *= deltaYSquared; // square delta Y
-
-		// Calculate the sum of the radii, then square it
-		double sumRadiiSquared = one.mRadius + two.mRadius;
-		sumRadiiSquared *= sumRadiiSquared;
-
-		if (deltaXSquared + deltaYSquared <= sumRadiiSquared)
-		{
-			// A and B are touching
-			return true;
-		}
-
-		return false;
-	};
-
-	inline static bool CheckCollision(Collider* one, Collider* two)
-	{
-		if (one->mType == COLLIDER_TYPE::COLLIDER_AABB && two->mType == COLLIDER_TYPE::COLLIDER_AABB)
-			return CheckCollision_AABBvsAABB(dynamic_cast<BoundingBox&>(*one), dynamic_cast<BoundingBox&>(*two));
-
-		if (one->mType == COLLIDER_TYPE::COLLIDER_SPHERE && two->mType == COLLIDER_TYPE::COLLIDER_SPHERE)
-			return CheckCollision_SPHEREvsSPHERE(dynamic_cast<BoundingSphere&>(*one), dynamic_cast<BoundingSphere&>(*two));
-
-		if (one->mType == COLLIDER_TYPE::COLLIDER_AABB && two->mType == COLLIDER_TYPE::COLLIDER_SPHERE)
-			return CheckCollision_AABBvsSPHERE(dynamic_cast<BoundingBox&>(*one), dynamic_cast<BoundingSphere&>(*two));
-
-		if (one->mType == COLLIDER_TYPE::COLLIDER_SPHERE && two->mType == COLLIDER_TYPE::COLLIDER_AABB)
-			return CheckCollision_AABBvsSPHERE(dynamic_cast<BoundingBox&>(*two), dynamic_cast<BoundingSphere&>(*one));
-
-		throw;
-	}
+	bool CheckCollision(Collider* one, Collider* two);
 }

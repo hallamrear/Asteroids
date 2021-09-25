@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Game.h"
 
-//Todo : copyright notice for font
+//Todo : copyright notice for font and sounds
 
 Game* app = nullptr;
 int main(int argc, char* argv[])
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 		app->SetIsRunning(true);
 
 	Uint32 currentTime = 0, deltaTime = 0, oldTime = 0;
-	Uint32 frameTime;
+	Uint32 frameTime = 0;
 
 	oldTime = SDL_GetTicks();
 
