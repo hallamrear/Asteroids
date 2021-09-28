@@ -10,7 +10,7 @@ Projectile::Projectile(SDL_Renderer& renderer, Vector2f position, float rotation
 	mPhysicsEnabled = true;
 	mDragEnabled = false;
 
-	mCollider = new BoundingBox(position, mTextureSizeX, mTextureSizeY);
+	mCollider = new BoundingBox(position, mTexture->Width, mTexture->Height);
 }
 
 Projectile::~Projectile()
@@ -42,11 +42,11 @@ void Projectile::Update(double deltaTime)
 void Projectile::Render()
 {
 	SDL_Rect destRect{};
-	destRect.w = mTextureSizeX;
-	destRect.h = mTextureSizeY;
-	destRect.x = (int)(mPosition.X) - (destRect.w / 2);
-	destRect.y = (int)(mPosition.Y) - (destRect.h / 2);
-	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
+	destRect.w = mTexture->Width;
+	destRect.h = mTexture->Height;
+	destRect.x = (int)(mPosition.X) - (destRect.w / 2.0f);
+	destRect.y = (int)(mPosition.Y) - (destRect.h / 2.0f);
+	SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)
 		mCollider->Render(mRenderer);

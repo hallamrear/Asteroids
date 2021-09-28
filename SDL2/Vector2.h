@@ -48,6 +48,8 @@ public:
 		return Vector2f(this->X * scalar, this->Y * scalar);
 	}
 
+
+
 	Vector2f& operator+=(const Vector2f& rhs)
 	{
 		this->X += rhs.X;

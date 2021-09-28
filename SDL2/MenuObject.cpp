@@ -6,7 +6,7 @@ MenuObject::MenuObject(SDL_Renderer& renderer, std::string texture_path, Vector2
 {
 	mPhysicsEnabled = false;
 	mDragEnabled = false;
-	mCollider = new BoundingBox(position, mTextureSizeX, mTextureSizeY);
+	mCollider = new BoundingBox(position, mTexture->Width, mTexture->Height);
 }
 
 MenuObject::~MenuObject()
@@ -31,9 +31,9 @@ void MenuObject::Render()
 		mCollider->Render(mRenderer);
 
 	SDL_Rect destRect;
-	destRect.w = mTextureSizeX;
-	destRect.h = mTextureSizeY;
-	destRect.x = (int)(mPosition.X - (destRect.w / 2));
-	destRect.y = (int)(mPosition.Y - (destRect.h / 2));
-	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
+	destRect.w = mTexture->Width;
+	destRect.h = mTexture->Height;
+	destRect.x = (int)(mPosition.X - (destRect.w / 2.0f));
+	destRect.y = (int)(mPosition.Y - (destRect.h / 2.0f));
+	SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 }

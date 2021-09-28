@@ -1,5 +1,4 @@
 #pragma once
-#define DRAW_COLLIDER true
 
 #define NOMINMAX
 
@@ -17,6 +16,8 @@
 #include <random>
 #include <cmath>
 #include <mmsystem.h>
+#include <cassert>
+
 //For PlaySound
 #pragma comment(lib, "winmm.lib")
 

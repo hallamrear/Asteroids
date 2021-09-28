@@ -14,7 +14,6 @@ class BoundingBox;
 class Game
 {
 private:
-
 	Vector2f				 	mWindowCentre;
 	int						 	mWindowWidth;
 	int						 	mWindowHeight;
@@ -22,18 +21,21 @@ private:
 	bool					 	mIsRunning;
 
 	struct SDL_Window*		 	mWindow;
-	struct SDL_Renderer*	 	mRenderer;
 	class  InputManager*	 	mInputManager;
 	class  GameStateDirector*	mStateDirector;
 
+	int							mPlayerScore;
 	Ship*						mShip;
 	BoundingBox*				mWindowCollider;
 	BoundingBox*				mMouseCollider;
 	std::vector<MenuObject*>	menuEntities;
+
+	std::vector<Entity*>		mWorldEntities;
+	std::vector<TextElement*>	mUIElements;
+
 	std::vector<Asteroid*>		testAsteroids;
 	std::vector<Projectile*>	testProjectiles;
 	MenuObject*					testDeathEntity;
-	TextElement*				testText;
 
 
 	//Game state functions
@@ -67,6 +69,7 @@ private:
 
 public:
 	static double					DeltaTime;
+	static struct SDL_Renderer*		Renderer;
 
 	Game();
 	~Game();

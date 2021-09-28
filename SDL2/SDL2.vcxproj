@@ -32,8 +32,10 @@
     <ClCompile Include="MenuObject.cpp" />
     <ClCompile Include="PCH.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="TextElement.cpp" />
+    <ClCompile Include="TextureCache.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colour.h" />
@@ -49,8 +51,10 @@
     <ClInclude Include="MenuObject.h" />
     <ClInclude Include="PCH.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="TextElement.h" />
+    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

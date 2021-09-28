@@ -7,19 +7,26 @@ class Ship :
 	public Entity
 {
 private:
-	float mMovementSpeed;
-	bool  mCanShoot;
-	float mShootCooldown;
+	Texture*	 mAltTexture;
+	int			 mAltTextureWidth;
+	int			 mAltTextureHeight;
+	float		 mMovementSpeed;
+	float		 mRotationSpeed;
+	bool		 mCanShoot;
+	bool		 mIsThrusting;
+	float		 mShootCooldown;
+	Vector2f	 mForwardVector;
 	
 public:
 	Ship(SDL_Renderer& renderer, std::string texture_path, Vector2f position, float rotation, float weight, float dragCoeff, float speedCap);
-	virtual ~Ship();
+	virtual ~Ship() override;
 
 	void Update(double deltaTime);
 	void Render();
 
-	void MoveUp();
-	void MoveDown();
+	void Reset();
+	void MoveUpPressed();
+	void MoveUpReleased();
 	void MoveLeft();
 	void MoveRight();
 	void Shoot(std::vector<Projectile*>* projectile_vector);

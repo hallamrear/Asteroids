@@ -1,14 +1,12 @@
 #pragma once
 #include "Collision.h"
-#include "GameStateDirector.h"
+#include "TextureCache.h"
 
 class Entity
 {
 protected:
-	int						mTextureSizeX;
-	int						mTextureSizeY;
 	SDL_Renderer&			mRenderer;
-	SDL_Texture*			mTexture;
+	Texture*				mTexture;
 	Collider*				mCollider;
 	bool					mIsAlive;
 	bool					mPhysicsEnabled;
@@ -39,7 +37,8 @@ public:
 
 	void					AddForce(Vector2f force);
 	void					AddForce(float X = 0.0f, float Y = 0.0f);
-	void					AssignTexture(std::string texture_path);
+	//Sets mTexture to the texture at texture_path. Sets the width and height to the parameters.
+	void					AssignTexture(const std::string& texture_path);
 
 	virtual void			Update(double deltaTime) = 0;
 	virtual void			Render() = 0;

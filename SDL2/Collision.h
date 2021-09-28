@@ -1,5 +1,6 @@
 #pragma once
 #include "PCH.h"
+#include "Settings.h"
 
 enum class COLLIDER_TYPE
 {
@@ -57,7 +58,7 @@ public:
 
 	virtual void Render(SDL_Renderer& renderer)
 	{
-		if(DRAW_COLLIDER)
+		if(Settings::Get()->GetDrawColliders())
 		{
 			SDL_Rect r{};
 			r.x = (int)(mOrigin.X - (Size.X / 2));
@@ -112,7 +113,7 @@ public:
 
 	virtual void Render(SDL_Renderer& renderer)
 	{
-		if (DRAW_COLLIDER)
+		if (Settings::Get()->GetDrawColliders())
 		{
 			SDL_SetRenderDrawColor(&renderer, 255, 0, 0, 255);
 
@@ -164,7 +165,7 @@ public:
 
 	virtual void Render(SDL_Renderer& renderer)
 	{
-		if(DRAW_COLLIDER)
+		if(Settings::Get()->GetDrawColliders())
 		{
 			Vector2f point;
 			for (float angle = 0; angle <= 2 * M_PI; angle += 0.5)

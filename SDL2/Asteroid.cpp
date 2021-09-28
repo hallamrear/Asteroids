@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "Asteroid.h"
 
+
 Asteroid::Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position, float rotation)
 	: Entity(renderer, "", position, rotation, 10.0f, 0.0f, 50.0f)
 {
@@ -28,7 +29,7 @@ Asteroid::Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position, 
 	}
 
 	if (mTexture != nullptr)
-		mCollider = new OrientedBoundingBox(position, rotation, mTextureSizeX, mTextureSizeY);
+		mCollider = new OrientedBoundingBox(position, rotation, mTexture->Width, mTexture->Height);
 }
 
 Asteroid::~Asteroid()
@@ -67,12 +68,14 @@ void Asteroid::Update(double deltaTime)
 
 void Asteroid::Render()
 {
+	assert(mTexture != nullptr);
+
 	SDL_Rect destRect{};
-	destRect.w = mTextureSizeX;
-	destRect.h = mTextureSizeY;
+	destRect.w = mTexture->Width;
+	destRect.h = mTexture->Height;
 	destRect.x = (int)(mPosition.X) - (destRect.w / 2);
 	destRect.y = (int)(mPosition.Y) - (destRect.h / 2);
-	SDL_RenderCopyEx(&mRenderer, mTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)
 		mCollider->Render(mRenderer);
