@@ -62,9 +62,13 @@ public:
 	};
 };
 
+
+//todo : add a previous state variable to detect presses and releases
 class InputManager
 {
 private:
+	static InputManager* mInstance;
+
 	const int mKeyCount = 24;
 	bool mIsMouseDown;
 	int mMousePositionX;
@@ -97,13 +101,14 @@ private:
 		/*22*/ IM_KEY_CODE::IM_KEY_C,
 		/*23*/ IM_KEY_CODE::IM_KEY_SPACE
 	};
+	void Update_Impl();
 
-
-public:
 	InputManager();
 	~InputManager();
+public:
+	static InputManager* Get();
+	static void Update();
 
-	void Update();
 	int FindKey(IM_KEY_CODE keycode);
 	void Bind(IM_KEY_CODE keycode, std::function<void()> func);
 	void KeyUpdate(SDL_Keycode key, bool state);

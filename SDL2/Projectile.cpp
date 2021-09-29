@@ -44,8 +44,8 @@ void Projectile::Render()
 	SDL_Rect destRect{};
 	destRect.w = mTexture->Width;
 	destRect.h = mTexture->Height;
-	destRect.x = (int)(mPosition.X) - (destRect.w / 2.0f);
-	destRect.y = (int)(mPosition.Y) - (destRect.h / 2.0f);
+	destRect.x = (int)(mPosition.X - (float)destRect.w / 2.0f);
+	destRect.y = (int)(mPosition.Y - (float)destRect.h / 2.0f);
 	SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
 	if (mCollider)

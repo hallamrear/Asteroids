@@ -24,13 +24,14 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Asteroid.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="GameStateDirector.cpp" />
+    <ClCompile Include="StateDirector.cpp" />
     <ClCompile Include="GameStates.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuObject.cpp" />
     <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Ship.cpp" />
@@ -39,17 +40,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colour.h" />
+    <ClInclude Include="DeathState.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Asteroid.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="GameStateDirector.h" />
+    <ClInclude Include="StateDirector.h" />
     <ClInclude Include="GameStates.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="MainMenuState.h" />
     <ClInclude Include="MenuObject.h" />
     <ClInclude Include="PCH.h" />
+    <ClInclude Include="PlayState.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Ship.h" />

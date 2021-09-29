@@ -45,7 +45,7 @@
     <ClCompile Include="MenuObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameStateDirector.cpp">
+    <ClCompile Include="StateDirector.cpp">
       <Filter>GameStates</Filter>
     </ClCompile>
     <ClCompile Include="GameStates.cpp">
@@ -67,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,7 +104,7 @@
     <ClInclude Include="MenuObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameStateDirector.h">
+    <ClInclude Include="StateDirector.h">
       <Filter>GameStates</Filter>
     </ClInclude>
     <ClInclude Include="GameStates.h">
@@ -124,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuState.h">
+      <Filter>GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayState.h">
+      <Filter>GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="DeathState.h">
+      <Filter>GameStates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

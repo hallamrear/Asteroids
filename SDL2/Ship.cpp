@@ -110,12 +110,12 @@ void Ship::MoveUpReleased()
 
 void Ship::MoveLeft()
 {
-	mRotation += (-mRotationSpeed * Game::DeltaTime);
+	mRotation += (-mRotationSpeed * (float)Game::DeltaTime);
 };
 
 void Ship::MoveRight()
 {
-	mRotation += (mRotationSpeed * Game::DeltaTime);
+	mRotation += (mRotationSpeed * (float)Game::DeltaTime);
 };
 
 void Ship::Shoot(std::vector<Projectile*>* projectile_vector)

@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "InputManager.h"
 
+InputManager* InputManager::mInstance = nullptr;
+
 InputManager::InputManager()
 {
 	mIsMouseDown = false;
@@ -30,7 +32,7 @@ void InputManager::Bind(IM_KEY_CODE keycode, std::function<void()> func)
 		std::cout << "FAILED TO BIND FUNCTION TO KEYCODE REFERENCE" << std::endl;
 }
 
-void InputManager::Update()
+void InputManager::Update_Impl()
 {
 	for (int i = 0; i < mKeyCount; i++)
 	{
@@ -39,6 +41,11 @@ void InputManager::Update()
 			mKeyStates[i].RunFunction();
 		}
 	}
+}
+
+void InputManager::Update()
+{
+	Get()->Update_Impl();
 }
 
 int InputManager::FindKey(IM_KEY_CODE keycode)
@@ -131,6 +138,14 @@ void InputManager::KeyUpdate(SDL_Keycode key, bool state)
 		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_SPACE)].SetState(state);
 		break;
 	}
+}
+
+InputManager* InputManager::Get()
+{
+	if (!mInstance)
+		mInstance = new InputManager();
+
+	return mInstance;
 }
 
 bool InputManager::GetMouseDown()
