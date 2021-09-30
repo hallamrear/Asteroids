@@ -14,7 +14,18 @@ inline int GetRandomIntExcludingCentre(int upperBound, int lowerBound)
 	return value;
 }
 
-inline Vector2f RotatePointAroundOrigin(Vector2f point, float rotation, Vector2f origin)
+inline float ConvertToRadians(float degrees)
+{
+	return degrees * (float)(M_PI / 180.0);
+}
+
+inline float ConvertToDegrees(float radians)
+{
+	return radians * (float)(180.0 / M_PI);
+}
+
+//todo : make reference to store in point rather than returning
+inline Vector2f RotatePointAroundOriginRadians(Vector2f point, float rotation, Vector2f origin)
 {
 	float s = sin(rotation);
 	float c = cos(rotation);
@@ -34,12 +45,7 @@ inline Vector2f RotatePointAroundOrigin(Vector2f point, float rotation, Vector2f
 	return value;
 }
 
-inline float ConvertToRadians(float degrees)
+inline Vector2f RotatePointAroundOriginDegrees(Vector2f point, float rotation, Vector2f origin)
 {
-	return degrees * (float)(M_PI / 180.0);
-}
-
-inline float ConvertToDegrees(float radians)
-{
-	return radians * (float)(180.0 / M_PI);
+	return RotatePointAroundOriginRadians(point, ConvertToRadians(rotation), origin);
 }

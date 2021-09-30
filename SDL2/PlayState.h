@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameStates.h"
 #include "InputManager.h"
+#include "MenuObject.h"
 #include "TextElement.h"
 #include "Settings.h"
 #include "Ship.h"
@@ -10,11 +11,12 @@
 
 struct PlayState : GameState
 {
-	TextElement*			 mScoreText = nullptr;
+	int						 mPlayerLives = 0;
 	int						 mAsteroidCount = 0;
-	int						 mPlayerScore = 0;
 	Ship*					 mShip = nullptr;
+	TextElement*			 mScoreText = nullptr;
 	std::vector<Asteroid*>	 mAsteroids;
+	std::vector<MenuObject*> mLivesImages;
 	std::vector<Projectile*> mProjectiles;
 	BoundingBox*			 mWindowCollider = nullptr;
 
@@ -25,26 +27,32 @@ struct PlayState : GameState
 
 	void Start() override
 	{
-		mPlayerScore = 0;
+		Vector2f centre = Settings::Get()->GetWindowCentre();
+
+		mPlayerLives = 3;
+
+		for (int i = 0; i < mPlayerLives; i++)
+		{
+			mLivesImages.push_back(new MenuObject(*Game::Renderer, "Assets/ship.bmp", Vector2f(0.0f,25.0f), 270.0f));
+			mLivesImages.back()->SetPosition(Vector2f(centre.X + ((i - 1) * 35.0f), 25.0f));
+		}
+
+		Settings::Get()->SetPlayerScore(0);
+
 		mScoreText = new TextElement(Vector2f(), "");
 
 		mWindowCollider = new BoundingBox(
-			     Settings::Get()->GetWindowCentre(),
-			(int)Settings::Get()->GetWindowDimensions().X,
-			(int)Settings::Get()->GetWindowDimensions().Y);
+			Settings::Get()->GetWindowCentre(),
+				   Settings::Get()->GetWindowDimensions().X,
+				   Settings::Get()->GetWindowDimensions().Y);
 
-		Vector2f centre = Settings::Get()->GetWindowCentre();
-
-		
 		mShip = new Ship(*Game::Renderer, std::string("Assets/ship.bmp"), centre, 0.0f, 32.0f, 1.2f, 5.0f);
 		mShip->SetPhysicsEnabled(true);
 		mShip->SetDragEnabled(true);
 
-		mPlayerScore = 0;
 		mScoreText->SetShowing(true);
 
 		mShip->Reset();
-		mShip->SetAlive(true);
 		mShip->SetPosition(centre);
 
 		Vector2f val;
@@ -67,36 +75,30 @@ struct PlayState : GameState
 
 		Vector2f position;
 		position.X = Settings::Get()->GetWindowDimensions().X / 2.0f;
-		position.Y = Settings::Get()->GetWindowDimensions().Y / 4.0f;
+		position.Y = Settings::Get()->GetWindowDimensions().Y / 12.0f;
 		mScoreText->SetPosition(position);
 
 		mAsteroidCount = Settings::Get()->GetAsteroidCount();
 
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_W, std::bind(&Ship::MoveUpPressed, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_UP_ARROW, std::bind(&Ship::MoveUpPressed, mShip));
-		//Add the release functions
-		//InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_S, std::bind(&Ship::MoveDown, mShip));
-		//InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_DOWN_ARROW, std::bind(&Ship::MoveDown, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_A, std::bind(&Ship::MoveLeft, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_LEFT_ARROW, std::bind(&Ship::MoveLeft, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_D, std::bind(&Ship::MoveRight, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_RIGHT_ARROW, std::bind(&Ship::MoveRight, mShip));
-		InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_SPACE, std::bind(&Ship::Shoot, mShip, &mProjectiles));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_W, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveUpPressed, mShip));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_W, IM_KEY_STATE::IM_KEY_RELEASED, std::bind(&Ship::MoveUpReleased, mShip));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_A, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveLeft, mShip));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_D, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveRight, mShip));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_SPACE, IM_KEY_STATE::IM_KEY_PRESSED, std::bind(&Ship::Shoot, mShip, &mProjectiles));
 
 	};
 	
 	void Update(double DeltaTime) override
 	{
-		mScoreText->SetString("Score: " + std::to_string(mPlayerScore));
-		mScoreText->Update(DeltaTime);
+		for (auto& itr : mLivesImages)
+			itr->Update(DeltaTime);
 
-		if (mShip->GetIsAlive() == false)
-			StateDirector::SetState(GameStateIdentifier::GAME_STATE_PLAYER_DEATH);
+		mScoreText->SetString(std::to_string(Settings::Get()->GetPlayerScore()));
+		mScoreText->Update(DeltaTime);
 
 		mShip->Update(DeltaTime);
 
 		WrapScreenEntity(*mShip);
-
 
 		for (auto& projectile : mProjectiles)
 		{
@@ -109,7 +111,6 @@ struct PlayState : GameState
 
 			for (int i = 0; i < mAsteroidCount; i++)
 			{
-
 				if (Collision_Detection::CheckCollision(projectile->GetCollider(), mAsteroids[i]->GetCollider()))
 				{
 					projectile->SetAlive(false);
@@ -122,7 +123,7 @@ struct PlayState : GameState
 
 					//PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 					mAsteroidCount--;
-					mPlayerScore += 1000;
+					Settings::Get()->IncreasePlayerScore(1000);
 
 					switch (mAsteroids[i]->GetAsteroidSize())
 					{
@@ -165,17 +166,33 @@ struct PlayState : GameState
 
 		for (size_t i = 0; i < mAsteroids.size(); i++)
 		{
+			if (mAsteroids[i]->GetIsAlive() == false)
+				continue;
+
 			if (Collision_Detection::CheckCollision(mShip->GetCollider(), mAsteroids[i]->GetCollider()))
 			{
 				mShip->SetAlive(false);
-			}
-
-			if (mAsteroids[i]->GetIsAlive() == false)
-				continue;
+			}			
 
 			mAsteroids[i]->Update(DeltaTime);
 			WrapScreenEntity(*mAsteroids[i]);
 
+		}
+
+		if (mShip->GetIsAlive() == false)
+		{
+			if (mPlayerLives > 0)
+			{
+				mPlayerLives--;
+				mLivesImages[mPlayerLives]->SetAlive(false);
+				mShip->SetPosition(Settings::Get()->GetWindowCentre());
+				mShip->Reset();
+			}
+			else
+			{
+				StateDirector::SetState(GameStateIdentifier::GAME_STATE_PLAYER_DEATH);
+				return;
+			}
 		}
 
 		//Cleanup any dead entites
@@ -184,6 +201,9 @@ struct PlayState : GameState
 
 	void Render(SDL_Renderer& renderer) override
 	{
+		for (auto& itr : mLivesImages)
+			itr->Render();
+
 		for (auto asteroid : mAsteroids)
 			asteroid->Render();
 
@@ -208,8 +228,6 @@ struct PlayState : GameState
 
 		//todo : destroy this
 		mScoreText->SetShowing(false);
-
-
 
 		for (size_t i = 0; i < mAsteroids.size(); i++)
 		{
@@ -288,4 +306,3 @@ struct PlayState : GameState
 		asteroid = nullptr;
 	}
 };
-

@@ -6,15 +6,22 @@
 struct DeathState :
     GameState
 {
-	MenuObject* mDeathTextObject = nullptr;
+	BoundingBox* mWindowCollider = nullptr;
 	BoundingBox* mMouseCollider = nullptr;
+	TextElement* mScoreTextElement = nullptr;
+	TextElement* mGenericTextDeathElement = nullptr;
 
-	~DeathState() = default;
+	~DeathState() override = default;
 
 	void Start() override
 	{
-		mMouseCollider = new BoundingBox(Settings::Get()->GetWindowCentre(), 2, 2);
-		mDeathTextObject = new MenuObject(*Game::Renderer, "Assets/death.png", Settings::Get()->GetWindowCentre(), 0.0f);
+		Vector2f centre = Settings::Get()->GetWindowCentre();
+
+		mMouseCollider = new BoundingBox(centre, 2, 2);
+		mWindowCollider = new BoundingBox(centre, Settings::Get()->GetWindowDimensions().X, Settings::Get()->GetWindowDimensions().Y);
+
+		mScoreTextElement = new TextElement(Vector2f(centre.X, (centre.Y / 3) - 25), "Final score: " + std::to_string(Settings::Get()->GetPlayerScore()));
+		mGenericTextDeathElement = new TextElement(Vector2f(centre.X, (centre.Y / 3)), "You died!", 0.0f, 24.0f);
 	}
 
 	void End() override
@@ -25,20 +32,23 @@ struct DeathState :
 			mMouseCollider = nullptr;
 		}
 
-		if (mDeathTextObject)
+		if (mWindowCollider)
 		{
-			delete mDeathTextObject;
-			mDeathTextObject = nullptr;
+			delete mWindowCollider;
+			mWindowCollider = nullptr;
 		}
 	}
 
 	void Update(double DeltaTime) override
 	{
-		mDeathTextObject->Update(DeltaTime);
+		mMouseCollider->Update(DeltaTime);
+		mWindowCollider->Update(DeltaTime);
+		mScoreTextElement->Update(DeltaTime);
+		mGenericTextDeathElement->Update(DeltaTime);
 
 		if (InputManager::Get()->GetMouseDown())
 		{
-			if (Collision_Detection::CheckCollision(mDeathTextObject->GetCollider(), mMouseCollider))
+			if (Collision_Detection::CheckCollision(mWindowCollider, mMouseCollider))
 			{
 				StateDirector::SetState(GameStateIdentifier::GAME_STATE_MAIN_MENU);
 
@@ -52,7 +62,9 @@ struct DeathState :
 	void Render(SDL_Renderer& renderer) override
 	{
 		mMouseCollider->Render(renderer);
-		mDeathTextObject->Render();
+		mWindowCollider->Render(renderer);
+		mScoreTextElement->Render();
+		mGenericTextDeathElement->Render();
 	}
 };
 

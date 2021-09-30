@@ -12,10 +12,10 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
-
+	//todo : fin
 }
 
-void InputManager::Bind(IM_KEY_CODE keycode, std::function<void()> func)
+void InputManager::Bind_Impl(IM_KEY_CODE keycode, IM_KEY_STATE keystate, std::function<void()> func)
 {
 	if (func)
 	{
@@ -23,7 +23,7 @@ void InputManager::Bind(IM_KEY_CODE keycode, std::function<void()> func)
 		{
 			if (mKeyStates[i].GetKeyCode() == keycode)
 			{
-				mKeyStates[i].Bind(func);
+				mKeyStates[i].Bind(keystate, func);
 				return;
 			}
 		}
@@ -32,14 +32,34 @@ void InputManager::Bind(IM_KEY_CODE keycode, std::function<void()> func)
 		std::cout << "FAILED TO BIND FUNCTION TO KEYCODE REFERENCE" << std::endl;
 }
 
+void InputManager::Bind(IM_KEY_CODE keycode, IM_KEY_STATE keystate, std::function<void()> func)
+{
+	Get()->Bind_Impl(keycode, keystate, func);
+}
+
 void InputManager::Update_Impl()
 {
 	for (int i = 0; i < mKeyCount; i++)
 	{
+		//Key Press
+		if (mKeyStates[i].GetState() == true && mKeyStates[i].GetPreviousState() == false)
+		{
+			mKeyStates[i].RunOnPressFunction();
+		}
+
 		if (mKeyStates[i].GetState() == true)
 		{
-			mKeyStates[i].RunFunction();
+			mKeyStates[i].RunOnHeldFunction();
 		}
+
+		//Key Release
+		else if (mKeyStates[i].GetState() == false && mKeyStates[i].GetPreviousState() == true)
+		{
+			mKeyStates[i].RunOnReleaseFunction();
+		}
+
+
+		mKeyStates[i].SetPreviousState(mKeyStates[i].GetState());
 	}
 }
 
@@ -134,8 +154,29 @@ void InputManager::KeyUpdate(SDL_Keycode key, bool state)
 	case SDLK_d:
 		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_D)].SetState(state);
 		break;
+
 	case SDLK_SPACE:
 		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_SPACE)].SetState(state);
+		break;
+
+	case SDLK_q:
+		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_Q)].SetState(state);
+		break;
+
+	case SDLK_e:
+		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_E)].SetState(state);
+		break;
+
+	case SDLK_z:
+		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_Z)].SetState(state);
+		break;
+
+	case SDLK_x:
+		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_X)].SetState(state);
+		break;
+
+	case SDLK_c:
+		mKeyStates[FindKey(IM_KEY_CODE::IM_KEY_C)].SetState(state);
 		break;
 	}
 }

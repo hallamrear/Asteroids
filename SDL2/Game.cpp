@@ -9,6 +9,7 @@
 #include "DeathState.h"
 #include "TextureCache.h"
 #include "Settings.h"
+#include "Testbed.h"
 
 double Game::DeltaTime = 0.0;
 //todo : this is not good
@@ -96,7 +97,21 @@ bool Game::InitialiseGraphics()
 
 bool Game::InitialiseWorldObjects()
 {
-	InputManager::Get()->Bind(IM_KEY_CODE::IM_KEY_Z, std::bind(&Settings::SetDrawColliders, Settings::Get(), !Settings::Get()->GetDrawColliders()));
+	InputManager::Bind(IM_KEY_CODE::IM_KEY_Z, IM_KEY_STATE::IM_KEY_PRESSED, 
+		[] 
+		{
+			Settings::Get()->SetDrawColliders(!Settings::Get()->GetDrawColliders());
+		});
+
+	InputManager::Bind(IM_KEY_CODE::IM_KEY_X, IM_KEY_STATE::IM_KEY_PRESSED,
+		[]
+		{
+			Settings::Get()->SetDrawLog(!Settings::Get()->GetDrawLog());
+		});
+
+	InputManager::Bind(IM_KEY_CODE::IM_KEY_1, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_MESSAGE, "Test Message"); });
+	InputManager::Bind(IM_KEY_CODE::IM_KEY_2, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_WARNING, "Test Warning"); });
+	InputManager::Bind(IM_KEY_CODE::IM_KEY_3, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_ERROR, "Test Error"); });
 
 	SetupGameStateFunctions();
 
@@ -120,13 +135,14 @@ bool Game::InitialiseSystems()
 			Log::LogMessage(LogLevel::LOG_ERROR, TTF_GetError());
 		}
 
-
 		int w, h;
 		SDL_GetWindowSize(mWindow, &w, &h);
 		Settings::Get()->SetWindowDimensions(Vector2f((float)w, (float)h));
 
 		if (InitialiseGraphics() == false)
 			return false;
+
+		SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
 		//Initialise image loader.
 		int flags = 0;
@@ -150,6 +166,7 @@ bool Game::InitialiseSystems()
 void Game::SetupGameStateFunctions()
 {
 	StateDirector::SetupState(GameStateIdentifier::GAME_STATE_MAIN_MENU, new MainMenuState);
+	StateDirector::SetupState(GameStateIdentifier::GAME_STATE_TESTBED, new Testbed);
 	StateDirector::SetupState(GameStateIdentifier::GAME_STATE_RUNNING, new PlayState);
 	StateDirector::SetupState(GameStateIdentifier::GAME_STATE_PLAYER_DEATH, new DeathState);
 	StateDirector::SetState(GameStateIdentifier::GAME_STATE_MAIN_MENU);
@@ -176,14 +193,9 @@ void Game::HandleEvents()
 		case SDL_MOUSEBUTTONUP:
 
 			if(event.type == SDL_MOUSEBUTTONDOWN)
-			{
 				InputManager::Get()->SetMouseDown(true);
-			}
 			else if(event.type == SDL_MOUSEBUTTONUP)
-			{
 				InputManager::Get()->SetMouseDown(false);
-			}
-
 			break;
 
 		case SDL_MOUSEMOTION:
@@ -191,7 +203,6 @@ void Game::HandleEvents()
 			int x, y;
 			SDL_GetMouseState(&x, &y);
 			InputManager::Get()->MouseUpdate(x, y);
-
 			break;
 			
 		case SDL_QUIT:
@@ -205,14 +216,17 @@ void Game::HandleEvents()
 			break;
 
 		case SDL_KEYDOWN:
-		if(event.key.keysym.sym == SDLK_ESCAPE)
-			mIsRunning = false;
-		else
-			InputManager::Get()->KeyUpdate(event.key.keysym.sym, true);
+			if(event.key.keysym.sym == SDLK_ESCAPE)
+				mIsRunning = false;
+			else
+				InputManager::Get()->KeyUpdate(event.key.keysym.sym, true);
 			break;
 
 		case SDL_KEYUP:
 			InputManager::Get()->KeyUpdate(event.key.keysym.sym, false);
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -220,14 +234,23 @@ void Game::HandleEvents()
 
 void Game::Update()
 {
-	InputManager::Get()->Update();
+	Log::LogMessage((LogLevel)(rand() % 3), std::to_string(rand() % 10000));
+
+	InputManager::Update();
 	StateDirector::Update(DeltaTime);
+
+	if(Settings::Get()->GetDrawLog())
+		Log::Update(DeltaTime);
 }
 
 void Game::Render()
 {
-	SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);
 	SDL_RenderClear(Renderer);
 	StateDirector::Render(*Renderer);
+
+	if (Settings::Get()->GetDrawLog())
+		Log::Render(*Renderer);
+
 	SDL_RenderPresent(Renderer);
 }

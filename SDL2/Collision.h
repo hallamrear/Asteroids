@@ -30,19 +30,16 @@ public:
 	Vector2f BottomRight;
 	Vector2f Size;
 
-	BoundingBox(Vector2f position, int size_x, int size_y)
+	BoundingBox(Vector2f position, float size_x, float size_y)
 		: Collider(position)
 	{
 		mType = COLLIDER_TYPE::COLLIDER_AABB;
 
-		Size.X = (float)size_x;
-		Size.Y = (float)size_y;
+		Size.X = size_x;
+		Size.Y = size_y;
 
-		int size_half_x = size_x / 2;
-		int size_half_y = size_y / 2;
-
-		TopLeft = Vector2f(position.X - size_half_x, position.Y - size_half_y);
-		BottomRight = Vector2f(position.X + size_half_x, position.Y + size_half_y);
+		TopLeft = Vector2f(position.X - (Size.X / 2.0f), position.Y - (Size.Y / 2.0f));
+		BottomRight = Vector2f(position.X + (Size.X / 2.0f), position.Y + (Size.Y / 2.0f));
 	};
 
 	virtual ~BoundingBox()
@@ -76,16 +73,12 @@ public:
 class OrientedBoundingBox : public BoundingBox
 {
 protected:
-	
-
 	void CalculateRotations()
 	{
-		float rotationRadians = ConvertToRadians(Rotation);
-
-		TopLeft = RotatePointAroundOrigin(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y - (Size.Y / 2)), rotationRadians, mOrigin);
-		BottomLeft = RotatePointAroundOrigin(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y + (Size.Y / 2)), rotationRadians, mOrigin);
-		TopRight = RotatePointAroundOrigin(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y - (Size.Y / 2)), rotationRadians, mOrigin);
-		BottomRight = RotatePointAroundOrigin(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y + (Size.Y / 2)), rotationRadians, mOrigin);
+		TopLeft = RotatePointAroundOriginDegrees(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y - (Size.Y / 2)), Rotation, mOrigin);
+		BottomLeft = RotatePointAroundOriginDegrees(Vector2f(mOrigin.X - (Size.X / 2), mOrigin.Y + (Size.Y / 2)), Rotation, mOrigin);
+		TopRight = RotatePointAroundOriginDegrees(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y - (Size.Y / 2)), Rotation, mOrigin);
+		BottomRight = RotatePointAroundOriginDegrees(Vector2f(mOrigin.X + (Size.X / 2), mOrigin.Y + (Size.Y / 2)), Rotation, mOrigin);
 	}
 
 public:
@@ -93,7 +86,7 @@ public:
 	Vector2f TopRight;
 	Vector2f BottomLeft;
 
-	OrientedBoundingBox(Vector2f position, float rotation, int size_x, int size_y)
+	OrientedBoundingBox(Vector2f position, float rotation, float size_x, float size_y)
 		: BoundingBox(position, size_x, size_y)
 	{
 		Rotation = rotation;
@@ -167,12 +160,15 @@ public:
 	{
 		if(Settings::Get()->GetDrawColliders())
 		{
+			SDL_SetRenderDrawColor(&renderer, 255, 255, 255, 255);
+			SDL_RenderDrawPoint(&renderer, (int)mOrigin.X, (int)mOrigin.Y);
 			Vector2f point;
-			for (float angle = 0; angle <= 2 * M_PI; angle += 0.5)
+			for (double angle = 0; angle <= 2 * M_PI; angle += 0.5)
 			{
-				point.X = mOrigin.X + mRadius * cos(angle);
-				point.Y = mOrigin.Y + mRadius * sin(angle);
+				point.X = mOrigin.X + mRadius * (float)cos(angle);
+				point.Y = mOrigin.Y + mRadius * (float)sin(angle);
 				SDL_RenderDrawPoint(&renderer, (int)point.X, (int)point.Y);
+
 			}
 		}
 	}

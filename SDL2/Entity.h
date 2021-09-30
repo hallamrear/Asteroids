@@ -10,6 +10,7 @@ protected:
 	Collider*				mCollider;
 	bool					mIsAlive;
 	bool					mPhysicsEnabled;
+	bool					mGravityEnabled;
 	bool					mDragEnabled;
 	float					mMass;				//Weight of Entity (kg)
 	float					mDragCoefficient;	//Drag coefficient (default to sphere's value of 0.47)
@@ -44,18 +45,20 @@ public:
 	virtual void			Render() = 0;
 
 	//Getters
-	Vector2f  const	GetPosition()		const { return mPosition; };
-	float	  const	GetRotation()		const { return mRotation; };
-	bool	  const	GetPhysicsEnabled()	const { return mPhysicsEnabled; };
-	bool	  const	GetDragEnabled()	const { return mDragEnabled; };
-	Collider* const	GetCollider()		const { return mCollider; };
-	bool	  const	GetIsAlive()		const { return mIsAlive; };
+	Vector2f  const	GetPosition()		const { return mPosition; }
+	float	  const	GetRotation()		const { return mRotation; }
+	bool	  const	GetPhysicsEnabled()	const { return mPhysicsEnabled; }
+	bool	  const	GetGravityEnabled()	const { return mGravityEnabled; }
+	bool	  const	GetDragEnabled()	const { return mDragEnabled; }
+	Collider* const	GetCollider()		const { return mCollider; }
+	bool	  const	GetIsAlive()		const { return mIsAlive; }
 
 	//Setters
-	virtual void	SetPosition(const Vector2f position)  { mPosition = position; };
-	virtual void	SetRotation(const float rotation)	  { mRotation = rotation; };
-	virtual void	SetPhysicsEnabled(const bool state)   { mPhysicsEnabled = state; };
-	virtual void	SetDragEnabled(const bool state)	  { mDragEnabled = state; };
-	virtual void	SetAlive(const bool state)			  { mIsAlive = state; };
+	virtual void	SetPosition(const Vector2f position)  { mPosition = position; }
+	virtual void	SetRotation(const float rotation)	  { mRotation = rotation; }
+	virtual void	SetPhysicsEnabled(const bool state)   { mPhysicsEnabled = state; }
+	virtual void	SetGravityEnabled(const bool state)	  { mGravityEnabled = state; }
+	virtual void	SetDragEnabled(const bool state)	  { mDragEnabled = state; }
+	virtual void	SetAlive(const bool state)			  { mIsAlive = state; }
 };
 

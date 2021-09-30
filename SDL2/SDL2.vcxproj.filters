@@ -16,6 +16,12 @@
     <Filter Include="GameStates">
       <UniqueIdentifier>{e822ec3f-6e97-4c03-86e6-e61f2143e76f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameStates\Header">
+      <UniqueIdentifier>{9354de73-6bd8-4aab-ad36-e65347e5a0ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameStates\Source">
+      <UniqueIdentifier>{cc7bd67a-ed60-48b7-a964-19baca86d348}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,12 +51,6 @@
     <ClCompile Include="MenuObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateDirector.cpp">
-      <Filter>GameStates</Filter>
-    </ClCompile>
-    <ClCompile Include="GameStates.cpp">
-      <Filter>GameStates</Filter>
-    </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,9 +60,6 @@
     <ClCompile Include="Colour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,6 +68,15 @@
     </ClCompile>
     <ClCompile Include="PlayState.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStates.cpp">
+      <Filter>GameStates\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StateDirector.cpp">
+      <Filter>GameStates\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,12 +110,6 @@
     <ClInclude Include="MenuObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StateDirector.h">
-      <Filter>GameStates</Filter>
-    </ClInclude>
-    <ClInclude Include="GameStates.h">
-      <Filter>GameStates</Filter>
-    </ClInclude>
     <ClInclude Include="Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,14 +128,23 @@
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DeathState.h">
+      <Filter>GameStates\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStates.h">
+      <Filter>GameStates\Header</Filter>
+    </ClInclude>
     <ClInclude Include="MainMenuState.h">
-      <Filter>GameStates</Filter>
+      <Filter>GameStates\Header</Filter>
     </ClInclude>
     <ClInclude Include="PlayState.h">
-      <Filter>GameStates</Filter>
+      <Filter>GameStates\Header</Filter>
     </ClInclude>
-    <ClInclude Include="DeathState.h">
-      <Filter>GameStates</Filter>
+    <ClInclude Include="StateDirector.h">
+      <Filter>GameStates\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Testbed.h">
+      <Filter>GameStates\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

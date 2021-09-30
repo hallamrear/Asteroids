@@ -9,27 +9,33 @@ Asteroid::Asteroid(SDL_Renderer& renderer, int asteroidSize, Vector2f position, 
 	mPhysicsEnabled = true;
 	mDragEnabled = false;
 
+	float colliderRadius = -1;
+
 	switch (mAsteroidSize)
 	{
 	case 1:
 		AssignTexture("Assets/smallAsteroid.bmp");
+		colliderRadius = 16.0f;
 		break;
 
 	case 2:
 		AssignTexture("Assets/midAsteroid.bmp");
+		colliderRadius = 32.0f;
 		break;
 
 	case 3:
 		AssignTexture("Assets/largeAsteroid.bmp");
+		colliderRadius = 64.0f;
 		break;
 
 	default:
 		printf("Unsupported asteroid size: %d", asteroidSize);
+		throw;
 		break;
 	}
 
 	if (mTexture != nullptr)
-		mCollider = new OrientedBoundingBox(position, rotation, mTexture->Width, mTexture->Height);
+		mCollider = new BoundingSphere(position, colliderRadius);
 }
 
 Asteroid::~Asteroid()

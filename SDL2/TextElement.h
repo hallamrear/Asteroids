@@ -28,13 +28,14 @@ public:
 		Colour colour = Colour());
 	~TextElement();
 
-	void Update(double deltaTime);
-	void Render();
+	void		Update(double deltaTime);
+	void		Render();
 
-	void SetShowing(bool state);
-	void SetColour(Colour colour);
-	void SetString(std::string str);
-	void SetString(const char* str);
-	void SetPosition(Vector2f screenPosition);
+	void		SetShowing(bool state);
+	void		SetColour(Colour colour);
+	void		SetString(std::string str);
+	void		SetString(const char* str);
+	void		SetPosition(Vector2f screenPosition);
+	Vector2f	GetTextureSize();
 };
 

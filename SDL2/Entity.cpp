@@ -7,6 +7,7 @@ Entity::Entity(SDL_Renderer& renderer, std::string texture_path, Vector2f positi
 {
 	mDragEnabled = false;
 	mPhysicsEnabled = false;
+	mGravityEnabled = false;
 	mIsAlive = true;
 
 	mPosition = position;
@@ -64,7 +65,9 @@ void Entity::UpdatePhysics(double deltaTime)
 
 		///External
 		//No need for gravity
-		//mNetForce += (9.81f * mWeight);
+		if(mGravityEnabled)
+			mNetForce += (Settings::Get()->GetGravityDirection() * mMass);
+
 		mNetForce += mExternalForce;
 
 		///Acceleration

@@ -27,13 +27,16 @@ void MenuObject::Update(double deltaTime)
 
 void MenuObject::Render()
 {
-	if (mCollider)
-		mCollider->Render(mRenderer);
+	if(GetIsAlive())
+	{
+		SDL_Rect destRect{};
+		destRect.w = mTexture->Width;
+		destRect.h = mTexture->Height;
+		destRect.x = (int)(mPosition.X - (destRect.w / 2.0f));
+		destRect.y = (int)(mPosition.Y - (destRect.h / 2.0f));
+		SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 
-	SDL_Rect destRect;
-	destRect.w = mTexture->Width;
-	destRect.h = mTexture->Height;
-	destRect.x = (int)(mPosition.X - (destRect.w / 2.0f));
-	destRect.y = (int)(mPosition.Y - (destRect.h / 2.0f));
-	SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
+		if (mCollider)
+			mCollider->Render(mRenderer);
+	}
 }

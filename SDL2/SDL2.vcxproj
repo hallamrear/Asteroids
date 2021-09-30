@@ -57,6 +57,7 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Ship.h" />
+    <ClInclude Include="Testbed.h" />
     <ClInclude Include="TextElement.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="Vector2.h" />

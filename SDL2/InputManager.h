@@ -1,5 +1,12 @@
 #pragma once
 
+enum class IM_KEY_STATE : int
+{
+	IM_KEY_PRESSED,
+	IM_KEY_HELD,
+	IM_KEY_RELEASED
+};
+
 enum class IM_KEY_CODE : int
 {
 	/*00*/ IM_KEY_1 = 0,
@@ -31,39 +38,79 @@ enum class IM_KEY_CODE : int
 class Key
 {
 private:
-	std::function<void()> mFunction;
+	std::function<void()> mPressFunction;
+	std::function<void()> mHeldFunction;
+	std::function<void()> mReleaseFunction;
+
 	IM_KEY_CODE mKeyCode;
+	bool mPreviousState;
 	bool mState = false;
 
 public:
-	inline Key(IM_KEY_CODE keycode)
+	Key(IM_KEY_CODE keycode)
 	{
 		mKeyCode = keycode;
 		mState = false;
-		mFunction = nullptr;
+		mPreviousState = false;
+		mPressFunction = nullptr;
+		mReleaseFunction = nullptr;
 	};
 
-	inline IM_KEY_CODE	GetKeyCode()			{ return mKeyCode; };
-	inline bool			GetState()				{ return mState; };
-	inline void			SetState(bool state)	{ mState = state; };
+	IM_KEY_CODE	GetKeyCode()				 { return mKeyCode; }
+	bool			GetState()					 { return mState; }
+	void			SetState(bool state)		 { mState = state; }
+	void			SetPreviousState(bool state) { mPreviousState = state; };
+	bool			GetPreviousState()			 { return mPreviousState; }
 
-	inline void Bind(std::function<void()> func)
+	void Bind(IM_KEY_STATE state, std::function<void()> func)
 	{
-		if (func)
+		switch (state)
 		{
-			mFunction = func;
-		}
+		case IM_KEY_STATE::IM_KEY_PRESSED:
+			if (func)
+			{
+				mPressFunction = func;
+			}
+			break;
+
+		case IM_KEY_STATE::IM_KEY_HELD:
+			if(func)
+			{
+				mHeldFunction = func;
+			}
+			break;
+
+		case IM_KEY_STATE::IM_KEY_RELEASED:
+			if (func)
+			{
+				mReleaseFunction = func;
+			}
+			break;
+		default:
+			throw;
+			break;
+		}		
 	};
 
-	inline void RunFunction()
+	void RunOnPressFunction()
 	{
-		if (mFunction)
-			mFunction();
+		if (mPressFunction)
+			mPressFunction();
 	};
+
+	void RunOnHeldFunction()
+	{
+		if (mHeldFunction)
+			mHeldFunction();
+	}
+
+	void RunOnReleaseFunction()
+	{
+		if (mReleaseFunction)
+			mReleaseFunction();
+	}
 };
 
-
-//todo : add a previous state variable to detect presses and releases
 class InputManager
 {
 private:
@@ -102,6 +149,7 @@ private:
 		/*23*/ IM_KEY_CODE::IM_KEY_SPACE
 	};
 	void Update_Impl();
+	void Bind_Impl(IM_KEY_CODE keycode, IM_KEY_STATE keystate, std::function<void()> func);
 
 	InputManager();
 	~InputManager();
@@ -110,7 +158,7 @@ public:
 	static void Update();
 
 	int FindKey(IM_KEY_CODE keycode);
-	void Bind(IM_KEY_CODE keycode, std::function<void()> func);
+	static void Bind(IM_KEY_CODE keycode, IM_KEY_STATE keystate, std::function<void()> func);
 	void KeyUpdate(SDL_Keycode key, bool state);
 
 	bool GetMouseDown();

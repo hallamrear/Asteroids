@@ -9,8 +9,8 @@ Ship::Ship(SDL_Renderer& renderer, std::string texture_path, Vector2f position, 
 {
 	mCollider = new OrientedBoundingBox(position, mRotation, mTexture->Width, mTexture->Height);
 
-	mMovementSpeed = 250.0f;
-	mRotationSpeed = 100.0f;
+	mMovementSpeed = 200.0f;
+	mRotationSpeed = 125.0f;
 	mCanShoot = true;
 	mShootCooldown = SHIP_SHOOT_COOLDOWN;
 
@@ -92,6 +92,7 @@ void Ship::Render()
 
 void Ship::Reset()
 {
+	SetAlive(true);
 	mVelocity = Vector2f();
 	mAcceleration = Vector2f();
 	mRotation = 0.0f;
@@ -124,7 +125,7 @@ void Ship::Shoot(std::vector<Projectile*>* projectile_vector)
 	{
 		if(mVelocity.X != 0.0f && mVelocity.Y != 0.0f)
 		{
-			Projectile* projectile = new Projectile(mRenderer, mPosition + (mVelocity.GetNormalized() * 25), mRotation, "Assets/projectile.bmp");
+			Projectile* projectile = new Projectile(mRenderer, mPosition + (mForwardVector.GetNormalized() * 25), mRotation, "Assets/projectile.bmp");
 			projectile->AddForce(mVelocity + (mForwardVector.GetNormalized() * 2 * projectile->GetProjectileSpeed()));
 			projectile->SetAlive(true);
 			projectile_vector->push_back(projectile);
