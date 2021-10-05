@@ -10,7 +10,7 @@ Log::Log()
 	mTextElements = std::vector<TextElement*>();
 	mMessageQueue = std::deque<std::pair<LogLevel, std::string>>();
 
-	for (size_t i = 0; i < Settings::Get()->GetMaxLogMessages(); i++)
+	for (size_t i = 0; i < (unsigned int)Settings::Get()->GetMaxLogMessages(); i++)
 	{
 		mTextElements.push_back(new TextElement(Vector2f(), ""));
 		mMessageQueue.emplace_back(LogLevel::LOG_MESSAGE, "");
@@ -40,7 +40,7 @@ void Log::LogMessage_Impl(LogLevel indicator, std::string str)
 	mMessages.emplace_back(indicator, str);
 	mMessageQueue.push_back(std::make_pair(indicator, str));
 
-	if (mMessageQueue.size() > Settings::Get()->GetMaxLogMessages())
+	if (mMessageQueue.size() > (unsigned int)Settings::Get()->GetMaxLogMessages())
 		mMessageQueue.pop_front();
 
 	printf("");

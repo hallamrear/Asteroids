@@ -6,7 +6,7 @@ MenuObject::MenuObject(SDL_Renderer& renderer, std::string texture_path, Vector2
 {
 	mPhysicsEnabled = false;
 	mDragEnabled = false;
-	mCollider = new BoundingBox(position, mTexture->Width, mTexture->Height);
+	mCollider = new BoundingBox(position, (float)mTexture->Width, (float)mTexture->Height);
 }
 
 MenuObject::~MenuObject()

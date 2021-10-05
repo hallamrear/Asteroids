@@ -95,7 +95,6 @@ void TextElement::Render()
 			destRect.y = static_cast<int>(mPosition.Y) - (destRect.h / 2);
 			SDL_RenderCopyEx(Game::Renderer, mTextTexture, NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 		}
-
 	}
 }
 
@@ -127,5 +126,5 @@ void TextElement::SetPosition(Vector2f screenPosition)
 
 Vector2f TextElement::GetTextureSize()
 {
-	return Vector2f(mTextWidth, mTextHeight);
+	return Vector2f((float)mTextWidth, (float)mTextHeight);
 }

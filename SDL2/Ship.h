@@ -7,9 +7,9 @@ class Ship :
 	public Entity
 {
 private:
+	float		 mInvincibleTimer;
+	bool		 mIsInvincible;
 	Texture*	 mAltTexture;
-	int			 mAltTextureWidth;
-	int			 mAltTextureHeight;
 	float		 mMovementSpeed;
 	float		 mRotationSpeed;
 	bool		 mCanShoot;
@@ -24,10 +24,13 @@ public:
 	void Update(double deltaTime);
 	void Render();
 
+	void SetIsInvincible(bool state);
+	bool GetIsInvincible();
+
 	void Reset();
 	void MoveUpPressed();
 	void MoveUpReleased();
 	void MoveLeft();
 	void MoveRight();
-	void Shoot(std::vector<Projectile*>* projectile_vector);
+	void Shoot(std::vector<Projectile*>& projectile_vector);
 };

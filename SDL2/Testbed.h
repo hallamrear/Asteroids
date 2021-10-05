@@ -8,25 +8,6 @@ struct Testbed : GameState
 	Asteroid* asteroid = nullptr;
 	TextElement* text = nullptr;
 
-	void MoveUp()
-	{
-		sphere->mOrigin += Vector2f(0.0f, 50.0f * (float)Game::DeltaTime);
-	}
-	void MoveDown()
-	{
-		sphere->mOrigin -= Vector2f(0.0f, 50.0f * (float)Game::DeltaTime);
-	}
-
-	void MoveLeft()
-	{
-		sphere->mOrigin -= Vector2f(50.0f * (float)Game::DeltaTime, 0.0f);
-	}
-
-	void MoveRight()
-	{
-		sphere->mOrigin += Vector2f(50.0f * (float)Game::DeltaTime, 0.0f);
-	}
-
 	void Start() override
 	{
 		Vector2f centre = Settings::Get()->GetWindowCentre();
@@ -71,5 +52,25 @@ struct Testbed : GameState
 
 		text->Render();
 	}
+
+	void MoveUp()
+	{
+		sphere->mOrigin += Vector2f(0.0f, 50.0f * (float)Game::DeltaTime);
+	}
+	void MoveDown()
+	{
+		sphere->mOrigin -= Vector2f(0.0f, 50.0f * (float)Game::DeltaTime);
+	}
+
+	void MoveLeft()
+	{
+		sphere->mOrigin -= Vector2f(50.0f * (float)Game::DeltaTime, 0.0f);
+	}
+
+	void MoveRight()
+	{
+		sphere->mOrigin += Vector2f(50.0f * (float)Game::DeltaTime, 0.0f);
+	}
+
 };
 

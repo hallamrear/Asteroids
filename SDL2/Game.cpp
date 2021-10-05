@@ -109,10 +109,6 @@ bool Game::InitialiseWorldObjects()
 			Settings::Get()->SetDrawLog(!Settings::Get()->GetDrawLog());
 		});
 
-	InputManager::Bind(IM_KEY_CODE::IM_KEY_1, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_MESSAGE, "Test Message"); });
-	InputManager::Bind(IM_KEY_CODE::IM_KEY_2, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_WARNING, "Test Warning"); });
-	InputManager::Bind(IM_KEY_CODE::IM_KEY_3, IM_KEY_STATE::IM_KEY_PRESSED, [] {Log::LogMessage(LogLevel::LOG_ERROR, "Test Error"); });
-
 	SetupGameStateFunctions();
 
 	return true;
@@ -234,8 +230,6 @@ void Game::HandleEvents()
 
 void Game::Update()
 {
-	Log::LogMessage((LogLevel)(rand() % 3), std::to_string(rand() % 10000));
-
 	InputManager::Update();
 	StateDirector::Update(DeltaTime);
 

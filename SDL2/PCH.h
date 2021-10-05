@@ -2,12 +2,13 @@
 
 #define NOMINMAX
 
-//todo : audio
 
 //SDL
 #include "SDL.h"
 #include "SDL_image.h"
+//todo : audio
 #include "SDL_audio.h"
+#include "SDL2_gfxPrimitives.h"
 #include "SDL_ttf.h"
 
 //C++ Libaries

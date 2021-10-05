@@ -5,12 +5,12 @@
 Projectile::Projectile(SDL_Renderer& renderer, Vector2f position, float rotation, std::string texturePath)
 	: Entity(renderer, texturePath, position, rotation, 10.0f, 0.5f, 35000.0f)
 {
-	mProjectileSpeed = 3000.f;
+	mProjectileSpeed = 2000.0f;
 
 	mPhysicsEnabled = true;
 	mDragEnabled = false;
 
-	mCollider = new BoundingBox(position, mTexture->Width, mTexture->Height);
+	mCollider = new BoundingBox(position, (float)mTexture->Width, (float)mTexture->Height);
 }
 
 Projectile::~Projectile()

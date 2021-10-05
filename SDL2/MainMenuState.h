@@ -20,6 +20,13 @@ struct MainMenuState :
 
 		mMenuEntites.emplace_back(new MenuObject(*Game::Renderer, "Assets/title.png", Vector2f(x, y), 0.0f));
 		mMenuEntites.emplace_back(new MenuObject(*Game::Renderer, "Assets/play.png", Vector2f(x, y * 2), 0.0f));
+
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_1, IM_KEY_STATE::IM_KEY_PRESSED,
+			[]
+			{
+				StateDirector::SetState(GameStateIdentifier::GAME_STATE_TESTBED);
+			});
+
 	}
 
 	void End() override

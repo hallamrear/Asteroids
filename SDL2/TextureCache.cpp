@@ -53,6 +53,8 @@ Texture* TextureCache::GetTexture(const std::string& texture_path)
 
 Texture::Texture(std::string texture_path)
 {
+	Width = NULL;
+	Height = NULL;
 	Create(texture_path);
 }
 
@@ -64,7 +66,6 @@ Texture::~Texture()
 	{
 		SDL_DestroyTexture(mTexture);
 		mTexture = nullptr;
-
 	}
 }
 
