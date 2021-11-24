@@ -160,7 +160,7 @@ void Ship::MoveRight()
 	mRotation += (mRotationSpeed * (float)Game::DeltaTime);
 };
 
-void Ship::Shoot(std::vector<Projectile*>& projectile_vector)
+void Ship::Shoot(std::vector<Projectile*>* projectile_vector)
 {
 	if(mCanShoot)
 	{
@@ -169,7 +169,7 @@ void Ship::Shoot(std::vector<Projectile*>& projectile_vector)
 			Projectile* projectile = new Projectile(mRenderer, mPosition + (mForwardVector.GetNormalized() * 25), 0.0f, "Assets/projectile.bmp");
 			projectile->AddForce(mVelocity + (mForwardVector.GetNormalized() * projectile->GetProjectileSpeed()));
 			projectile->SetAlive(true);
-			projectile_vector.push_back(projectile);
+			projectile_vector->push_back(projectile);
 
 			//todo : make a proper sound system
 			std::string s = "Assets/Sounds/laser.wav";

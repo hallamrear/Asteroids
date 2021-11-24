@@ -32,5 +32,5 @@ public:
 	void MoveUpReleased();
 	void MoveLeft();
 	void MoveRight();
-	void Shoot(std::vector<Projectile*>& projectile_vector);
+	void Shoot(std::vector<Projectile*>* projectile_vector);
 };

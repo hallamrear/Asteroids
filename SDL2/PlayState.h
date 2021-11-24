@@ -84,7 +84,7 @@ struct PlayState : GameState
 		InputManager::Bind(IM_KEY_CODE::IM_KEY_W, IM_KEY_STATE::IM_KEY_RELEASED, std::bind(&Ship::MoveUpReleased, mShip));
 		InputManager::Bind(IM_KEY_CODE::IM_KEY_A, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveLeft, mShip));
 		InputManager::Bind(IM_KEY_CODE::IM_KEY_D, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveRight, mShip));
-		InputManager::Bind(IM_KEY_CODE::IM_KEY_SPACE, IM_KEY_STATE::IM_KEY_PRESSED, std::bind(&Ship::Shoot, mShip, mProjectiles));
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_SPACE, IM_KEY_STATE::IM_KEY_PRESSED, std::bind(&Ship::Shoot, mShip, &mProjectiles));
 
 	};
 	
