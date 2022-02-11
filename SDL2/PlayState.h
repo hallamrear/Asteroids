@@ -86,6 +86,10 @@ struct PlayState : GameState
 		InputManager::Bind(IM_KEY_CODE::IM_KEY_D, IM_KEY_STATE::IM_KEY_HELD, std::bind(&Ship::MoveRight, mShip));
 		InputManager::Bind(IM_KEY_CODE::IM_KEY_SPACE, IM_KEY_STATE::IM_KEY_PRESSED, std::bind(&Ship::Shoot, mShip, &mProjectiles));
 
+
+		InputManager::Bind(IM_KEY_CODE::IM_KEY_Z, IM_KEY_STATE::IM_KEY_PRESSED, [] {Settings::Get()->SetDrawColliders(!Settings::Get()->GetDrawColliders()); });
+
+
 	};
 	
 	void Update(double DeltaTime) override
@@ -121,7 +125,7 @@ struct PlayState : GameState
 					//todo : make a proper sound system
 					std::string s = "Assets/Sounds/explode.wav";
 
-					//PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+					PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 					mAsteroidCount--;
 					Settings::Get()->IncreasePlayerScore(1000);
 

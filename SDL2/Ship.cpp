@@ -93,36 +93,35 @@ void Ship::Render()
 {
 	//todo : this render code is repeated alot it could probably be a function
 
-	SDL_Rect destRect{};
+	SDL_Rect destRect = { };
 
 	if (mIsInvincible)
 	{
-		SDL_Rect rect = {
-			destRect.x = (int)(mPosition.X) - (destRect.w / 2),
-			destRect.y = (int)(mPosition.Y) - (destRect.h / 2),
-			destRect.w = mTexture->Width,
-			destRect.h = mTexture->Height
-		};
-
 		int radius = 0;
 		(mTexture->Width > mTexture->Height) ? radius = mTexture->Width : radius = mTexture->Height;
 		radius /= 2; radius += 8;
-		aacircleRGBA(&mRenderer, (short)mPosition.X, (short)mPosition.Y, (short)radius, 0, 64, 180, 160);
+		short posX = (short)mPosition.X;
+		short posY = (short)mPosition.Y;
+		aacircleRGBA(&mRenderer, posX, posY, (short)radius, 0, 64, 180, 160);
 	}
 
-	destRect.x = (int)(mPosition.X) - (destRect.w / 2);
-	destRect.y = (int)(mPosition.Y) - (destRect.h / 2);
+	destRect.x = mPosition.X - (destRect.w / 2);
+	destRect.y = mPosition.Y - (destRect.h / 2);
 
 	if (mIsThrusting)
 	{
 		destRect.w = mAltTexture->Width;
 		destRect.h = mAltTexture->Height;
+		destRect.x = mPosition.X - (mAltTexture->Width / 2);
+		destRect.y = mPosition.Y - (mAltTexture->Height / 2);
 		SDL_RenderCopyEx(&mRenderer, &mAltTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 	}
 	else
 	{
 		destRect.w = mTexture->Width;
 		destRect.h = mTexture->Height;
+		destRect.x = mPosition.X - (mTexture->Width / 2);
+		destRect.y = mPosition.Y - (mTexture->Height / 2);
 		SDL_RenderCopyEx(&mRenderer, &mTexture->GetSDLTexture(), NULL, &destRect, mRotation, NULL, SDL_FLIP_NONE);
 	}
 
@@ -173,7 +172,7 @@ void Ship::Shoot(std::vector<Projectile*>* projectile_vector)
 
 			//todo : make a proper sound system
 			std::string s = "Assets/Sounds/laser.wav";
-			//PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound(s.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 
  			mCanShoot = false;
 		}	
